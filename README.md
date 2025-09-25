@@ -61,6 +61,6 @@ It emphasizes **modern Android development practices** such as declarative UI, c
 [Click here to access project files](https://drive.google.com/drive/folders/1oIn39CgFFAwPu63NSKCKSQ2pffnXIWOW?usp=sharing)
 
 ## 📄 Documentation  
-- [Team Members & Responsibilities](docs/Team_Members_Responsibilities.docx)  
-- [Project Description & Analysis](docs/Project_Description_Analysis.docx)  
+- [Team Members & Responsibilities](Docs/Team_Members_Responsibilities.docx)  
+- [Project Description & Analysis](Docs/Project_Description_Analysis.docx)  
 
