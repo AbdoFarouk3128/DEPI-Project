@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "991967267105",
+    "project_id": "movie-discovery-app-1fc65",
+    "storage_bucket": "movie-discovery-app-1fc65.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991967267105:android:0dadae953c18b305d49660",
+        "android_client_info": {
+          "package_name": "com.example.absolutecinema"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0EZuhelOJHAVXrwV8BYBcW8W1RhC98A0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
