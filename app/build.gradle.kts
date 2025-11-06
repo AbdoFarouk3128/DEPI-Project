@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -64,6 +65,8 @@ dependencies {
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
     implementation(platform("androidx.compose:compose-bom:2025.10.01"))
     implementation("androidx.navigation:navigation-compose:2.9.6")
+    //Firebase
+    implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
 
 
 }
