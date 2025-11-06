@@ -14,7 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun MovieDetails(movieId: String, onBack: () -> Unit) {
+fun MovieDetails(
+    movieId: String,
+    onBack: () -> Unit,
+    watchlistControl: (String) -> Unit,
+    gotoWatchlist:()->Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -26,6 +31,12 @@ fun MovieDetails(movieId: String, onBack: () -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = onBack) {
             Text("Back")
+        }
+        Button(onClick = { watchlistControl(movieId) }) {
+            Text("add to watchlist")
+        }
+        Button(onClick =  gotoWatchlist ) {
+            Text("go to watchlist")
         }
     }
 }

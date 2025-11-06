@@ -14,7 +14,8 @@ data class Results(
     val background: String,
     val title: String,
     @SerializedName("release_date")
-    val date: String
+    val date: String,
+    var isWatched: Boolean = false
 //    @SerializedName("vote_average")
 //    val rating:String,
 )

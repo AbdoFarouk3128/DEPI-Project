@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -39,6 +40,7 @@ import com.example.absolutecinema.data.CinemaCallable
 import com.example.absolutecinema.navigation.NavGraph
 import com.example.absolutecinema.ui.MovieScreen
 import com.example.absolutecinema.ui.theme.AbsoluteCinemaTheme
+import com.example.absolutecinema.viewmodel.MoviesViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -54,9 +56,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             AbsoluteCinemaTheme {
                 val navController = rememberNavController()
+                val viewModel: MoviesViewModel = viewModel()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
-                        NavGraph(navController = navController) // 👈 this handles all screen navigation
+                        NavGraph(navController = navController,viewModel=viewModel)
                     }
                 }
             }
