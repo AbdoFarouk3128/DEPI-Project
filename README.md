@@ -1,4 +1,4 @@
-# 🎬 Movie Discovery App (Jetpack Compose)
+# 🎬 Absolute Cinema App (Jetpack Compose)
 
 ## 📌 Project Name  
 Movie Discovery App with Jetpack Compose  
