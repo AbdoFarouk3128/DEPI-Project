@@ -1,38 +1,63 @@
 package com.example.absolutecinema.viewmodel
 
-import Cinema
 import Results
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class MoviesViewModel : ViewModel() {
-    private val _movies = MutableLiveData<List<Results>>(emptyList())
-    val movies: LiveData<List<Results>> = _movies
+data class WatchlistMovieData(
+    val movieId: String,
+    val posterPath: String
+)
+data class LikedMovieData(
+    val movieId: String,
+    val posterPath: String
+)
+class WatchlistMoviesViewModel : ViewModel() {
+     val watchlistMovies = MutableLiveData<List<Results>>(emptyList())
 
-    private val _watchlist = MutableLiveData<MutableList<String>>(mutableListOf())
-    val watchlist: LiveData<MutableList<String>> = _watchlist
+    private val _watchlist = MutableLiveData<MutableList<WatchlistMovieData>>(mutableListOf())
+    val watchlist: LiveData<MutableList<WatchlistMovieData>> = _watchlist
 
-    // Add/remove movie from watchlist
-    fun watchlistControl(movieId: String) {
+    // Add or remove movie from watchlist
+    fun watchlistControl(movieId: String, posterPath: String) {
         val currentList = _watchlist.value ?: mutableListOf()
-        if (currentList.contains(movieId)) {
-            currentList.remove(movieId)
 
+        val existingItem = currentList.find { it.movieId == movieId }
+
+        if (existingItem != null) {
+            // Remove it if already in watchlist
+            currentList.remove(existingItem)
         } else {
-            currentList.add(movieId)
+            // Add new movie with its poster
+            currentList.add(WatchlistMovieData(movieId, posterPath))
         }
         _watchlist.value = currentList
-        toggleWatched(movieId)
     }
 
-    // Mark movie as watched/unwatched
-    fun toggleWatched(movieId: String) {
-        _movies.value = _movies.value?.map { movie ->
-            if (movie.id == movieId) {
-                movie.copy(isWatched = !movie.isWatched)
-            } else movie
+
+}
+class LikedMoviesViewModel : ViewModel() {
+    val moviesLiked = MutableLiveData<List<Results>>(emptyList())
+
+    private val _likedList = MutableLiveData<MutableList<LikedMovieData>>(mutableListOf())
+    val likedList: LiveData<MutableList<LikedMovieData>> = _likedList
+
+    // Add or remove movie from watchlist
+    fun likedListControl(movieId: String, posterPath: String) {
+        val currentList = _likedList.value ?: mutableListOf()
+
+        val existingItem = currentList.find { it.movieId == movieId }
+
+        if (existingItem != null) {
+            // Remove it if already in watchlist
+            currentList.remove(existingItem)
+        } else {
+            // Add new movie with its poster
+            currentList.add(LikedMovieData(movieId, posterPath))
         }
+        _likedList.value = currentList
+
     }
+
 }

@@ -33,24 +33,22 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.R
 import com.example.absolutecinema.data.getDetails
 import com.example.absolutecinema.navigation.Deliverables
-import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
-
+import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun WatchlistScreen(
-    viewModel: WatchlistMoviesViewModel,
+fun LikedListScreen(
+    viewModel: LikedMoviesViewModel,
     onMovieClick: (Deliverables) -> Unit
 ) {
-    val watchlist by viewModel.watchlist.observeAsState(emptyList())
+    val likedList by viewModel.likedList.observeAsState(emptyList())
     var movies by remember { mutableStateOf<List<Results>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
-    LaunchedEffect(watchlist) {
-        if (watchlist.isNotEmpty()) {
+    LaunchedEffect(likedList) {
+        if (likedList.isNotEmpty()) {
             val watchlistMovies = mutableListOf<Results>()
-
-            for (movie in watchlist) {
+            for (movie in likedList) {
                 getDetails(movie.movieId) { result ->
                     result?.let { watchlistMovies.add(it) }
                     movies = watchlistMovies.toList()
@@ -65,21 +63,18 @@ fun WatchlistScreen(
 
 
 
-    if (watchlist.isEmpty()) {
+    if (likedList.isEmpty()) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(R.drawable.no_watchlist),
-                contentDescription = "No movies in watchlist",
+                painter = painterResource(R.drawable.no_liked),
+                contentDescription = "No movies in Liked list",
                 modifier = Modifier.size(150.dp)
             )
-            Text(
-                "No movies added",
-            )
-
+            Text("No Liked Movies")
         }
     } else {
         LazyVerticalGrid(

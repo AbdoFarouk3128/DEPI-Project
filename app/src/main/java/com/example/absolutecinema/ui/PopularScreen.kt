@@ -17,12 +17,12 @@ import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.data.getMovies
+import com.example.absolutecinema.navigation.Deliverables
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun MovieScreen(
-    modifier: Modifier,
-    onMovieClick: (String) -> Unit
+    onMovieClick: (Deliverables) -> Unit,
 ) {
     var movies by remember { mutableStateOf<List<Results>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -55,7 +55,13 @@ fun MovieScreen(
                         .aspectRatio(0.7f)
                         .clip(RoundedCornerShape(12.dp))
                         .clickable {
-                            onMovieClick(movie.id)
+                            val deliverable = Deliverables(
+                                movieId = movie.id,
+                                poster = movie.poster,
+                                isWatched = movie.isWatched,
+                                title = movie.title
+                            )
+                            onMovieClick(deliverable)
                         }
                 )
             }

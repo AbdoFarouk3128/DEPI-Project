@@ -31,3 +31,24 @@ fun getMovies(onResult: (List<Results>) -> Unit) {
 
     })
 }
+fun getDetails(movieId:String,onResult: (Results?) -> Unit){
+    val retrofit = Retrofit.Builder()
+        .baseUrl("https://api.themoviedb.org/3/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    val c= retrofit.create(CinemaCallable::class.java)
+    c.getDetails(movieId).enqueue(object : Callback<Results> {
+        override fun onResponse(call: Call<Results>, response: Response<Results>) {
+            val cinema = response.body()
+            onResult(cinema)
+
+        }
+
+        override fun onFailure(call: Call<Results>, t: Throwable) {
+
+        }
+
+
+    })
+}
+
