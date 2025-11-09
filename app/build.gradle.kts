@@ -65,6 +65,8 @@ dependencies {
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
     implementation(platform("androidx.compose:compose-bom:2025.10.01"))
     implementation("androidx.navigation:navigation-compose:2.9.6")
+    implementation(platform("androidx.compose:compose-bom:2025.10.01"))
+    implementation("androidx.compose.material:material-icons-extended:1.7.7")
     //Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
 

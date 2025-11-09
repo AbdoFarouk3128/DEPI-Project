@@ -61,3 +61,27 @@ class LikedMoviesViewModel : ViewModel() {
     }
 
 }
+class WatchedMoviesViewModel : ViewModel() {
+    val moviesWatched = MutableLiveData<List<Results>>(emptyList())
+
+    private val _watchedList = MutableLiveData<MutableList<LikedMovieData>>(mutableListOf())
+    val watchedList: LiveData<MutableList<LikedMovieData>> = _watchedList
+
+    // Add or remove movie from watchlist
+    fun watchedListControl(movieId: String, posterPath: String) {
+        val currentList = _watchedList.value ?: mutableListOf()
+
+        val existingItem = currentList.find { it.movieId == movieId }
+
+        if (existingItem != null) {
+            // Remove it if already in watchlist
+            currentList.remove(existingItem)
+        } else {
+            // Add new movie with its poster
+            currentList.add(LikedMovieData(movieId, posterPath))
+        }
+        _watchedList.value = currentList
+
+    }
+
+}

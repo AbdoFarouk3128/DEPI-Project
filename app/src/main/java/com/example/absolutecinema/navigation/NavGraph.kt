@@ -9,8 +9,10 @@ import androidx.navigation.navArgument
 import com.example.absolutecinema.ui.LikedListScreen
 import com.example.absolutecinema.ui.MovieDetails
 import com.example.absolutecinema.ui.MovieScreen
+import com.example.absolutecinema.ui.WatchedScreen
 import com.example.absolutecinema.ui.WatchlistScreen
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
+import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
 import com.google.gson.Gson
 import java.net.URLDecoder
@@ -19,7 +21,8 @@ import java.net.URLDecoder
 fun NavGraph(
     navController: NavHostController,
     watchlistViewModel: WatchlistMoviesViewModel,
-    likedMoviesViewModel: LikedMoviesViewModel
+    likedMoviesViewModel: LikedMoviesViewModel,
+    watchedListViewModel:WatchedMoviesViewModel
 ) {
     NavHost(
         navController = navController,
@@ -89,6 +92,16 @@ fun NavGraph(
             )
         }
 
+        composable(
+            route = Screen.Watched.route,
+        ) { backStackEntry ->
+            WatchedScreen (
+                viewModel = watchlistViewModel,
+                onMovieClick = { deliverables ->
+                    navController.navigate(Screen.Details.createRoute(deliverables))
+                }
+            )
+        }
 
     }
 }

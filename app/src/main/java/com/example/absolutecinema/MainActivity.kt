@@ -3,7 +3,6 @@ package com.example.absolutecinema
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,11 +15,9 @@ import com.example.absolutecinema.ui.theme.AbsoluteCinemaTheme
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             AbsoluteCinemaTheme {
                 val navController = rememberNavController()
@@ -41,11 +38,10 @@ class MainActivity : ComponentActivity() {
 }
 
 
-
-
-
-
-
-
-
-
+//Box(modifier = Modifier.padding(innerPadding)) {
+//    NavGraph(
+//        navController = navController,
+//        watchlistViewModel = watchListViewModel,
+//        likedMoviesViewModel = likedListViewModel
+//    )
+//AbsoluteCinemaTheme

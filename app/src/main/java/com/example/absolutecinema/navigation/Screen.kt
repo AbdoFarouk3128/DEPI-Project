@@ -18,7 +18,14 @@ sealed class Screen(val route: String) {
     object LikedList : Screen("likedList/{movieId}/{posterPath}"){
         fun createRoute(movieId: String,poster:String) = "likedList/${movieId}/${poster.removePrefix("/")}"
     }
-
+    object Watched:Screen("watched/{deliverables}"){
+        fun createRoute(deliverables: Deliverables): String {
+            val gson = com.google.gson.Gson()
+            val json = gson.toJson(deliverables)
+            val encoded = URLEncoder.encode(json, "UTF-8")
+            return "watched/$encoded"
+        }
+    }
 }
 data class Deliverables(
     val movieId: String,
