@@ -4,6 +4,8 @@ import Results
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 data class WatchlistMovieData(
     val movieId: String,
@@ -91,6 +93,9 @@ class WatchedMoviesViewModel : ViewModel() {
 
 }
 class RatedMovieViewModel:ViewModel(){
+    private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
     private val _ratedMovies =MutableLiveData<MutableList<RatedMovieData>>(mutableListOf())
     val ratedMovies :LiveData<MutableList<RatedMovieData>> =_ratedMovies
 
