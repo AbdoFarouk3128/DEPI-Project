@@ -16,13 +16,14 @@ import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
 import com.google.gson.Gson
 import java.net.URLDecoder
+import java.net.URLEncoder
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
     watchlistViewModel: WatchlistMoviesViewModel,
     likedMoviesViewModel: LikedMoviesViewModel,
-    watchedListViewModel:WatchedMoviesViewModel
+    watchedListViewModel: WatchedMoviesViewModel
 ) {
     NavHost(
         navController = navController,
@@ -49,11 +50,14 @@ fun NavGraph(
 
             MovieDetails(
                 movieId = deliverables.movieId,
-                posterPath = deliverables.poster,
-                title = deliverables.title,
+//                posterPath = deliverables.poster,
+//                title = deliverables.title,
                 watchlistViewModel = watchlistViewModel,
                 likedListViewModel = likedMoviesViewModel,
                 onBack = { navController.popBackStack() },
+                onMovieClick = { movie ->
+                    navController.navigate(Screen.Details.createRoute(movie))
+                },
                 watchlistControl = { movieId, posterPath ->
                     watchlistViewModel.watchlistControl(movieId, posterPath)
 
@@ -62,12 +66,12 @@ fun NavGraph(
                     likedMoviesViewModel.likedListControl(movieId, posterPath)
 
                 },
-                gotoWatchlist = { movieId, poster ->
-                    navController.navigate(Screen.Watchlist.createRoute(movieId, poster))
+                gotoWatchlist = {
+                    navController.navigate(Screen.Watchlist.route)
                 },
 
-                gotoLikedList = { movieId, poster ->
-                    navController.navigate(Screen.LikedList.createRoute(movieId, poster))
+                gotoLikedList = {
+                    navController.navigate(Screen.LikedList.route)
                 },
             )
         }
