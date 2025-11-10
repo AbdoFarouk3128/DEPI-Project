@@ -33,24 +33,24 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.R
 import com.example.absolutecinema.data.getDetails
 import com.example.absolutecinema.navigation.Deliverables
-import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
+import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun WatchedScreen(
-    viewModel: WatchlistMoviesViewModel,
+    viewModel: WatchedMoviesViewModel,
     onMovieClick: (Deliverables) -> Unit
                   )
 {
-    val watchlist by viewModel.watchlist.observeAsState(emptyList())
+    val watchedList by viewModel.watchedList.observeAsState(emptyList())
     var movies by remember { mutableStateOf<List<Results>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
-    LaunchedEffect(watchlist) {
-        if (watchlist.isNotEmpty()) {
+    LaunchedEffect(watchedList) {
+        if (watchedList.isNotEmpty()) {
             val watchlistMovies = mutableListOf<Results>()
 
-            for (movie in watchlist) {
+            for (movie in watchedList) {
                 getDetails(movie.movieId) { result ->
                     result?.let { watchlistMovies.add(it) }
                     movies = watchlistMovies.toList()
@@ -65,19 +65,19 @@ fun WatchedScreen(
 
 
 
-    if (watchlist.isEmpty()) {
+    if (watchedList.isEmpty()) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(R.drawable.no_watchlist),
-                contentDescription = "No movies in watchlist",
+                painter = painterResource(R.drawable.no_watched),
+                contentDescription = "No movies in watched",
                 modifier = Modifier.size(150.dp)
             )
             Text(
-                "No movies added",
+                "No movies watched",
             )
 
         }

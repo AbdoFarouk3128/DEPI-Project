@@ -19,9 +19,10 @@ fun RatingBar(
     modifier: Modifier = Modifier,
     rating: Int = 0,
     stars: Int = 5,
+    movieId:String,
     onRatingChanged: (Int) -> Unit,
     starsColor: Color = Color.Yellow,
-    onDoubleTap:(Int)->Unit,
+    saveRating:(String,Int)-> Unit,
 ) {
     var lastClickedIndex by remember { mutableIntStateOf(-1) }
 
@@ -39,15 +40,14 @@ fun RatingBar(
                 modifier = modifier
                     .clickable {
                         if (index == lastClickedIndex && index == rating) {
-                            // Second press on the same star → remove it
+
                             onRatingChanged(index - 1)
                             lastClickedIndex = -1
                         } else {
-                            // First press → set rating
                             onRatingChanged(index)
                             lastClickedIndex = index
                         }
-
+                        saveRating(movieId,index)
                          }
 
             )

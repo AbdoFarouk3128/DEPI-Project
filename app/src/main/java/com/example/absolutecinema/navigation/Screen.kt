@@ -3,7 +3,10 @@ package com.example.absolutecinema.navigation
 import java.net.URLEncoder
 
 sealed class Screen(val route: String) {
+
+
     object Movies : Screen("movies")
+
     object Details : Screen("details/{deliverables}") {
         fun createRoute(deliverables: Deliverables): String {
             val gson = com.google.gson.Gson()

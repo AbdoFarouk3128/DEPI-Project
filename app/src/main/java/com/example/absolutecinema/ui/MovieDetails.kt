@@ -38,6 +38,8 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.R
 import com.example.absolutecinema.ui.componants.RatingBar
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
+import com.example.absolutecinema.viewmodel.RatedMovieViewModel
+import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
 import kotlinx.coroutines.launch
 
@@ -49,23 +51,31 @@ fun MovieDetails(
     title:String,
     watchlistViewModel: WatchlistMoviesViewModel,
     likedListViewModel: LikedMoviesViewModel,
+    watchedMoviesViewModel: WatchedMoviesViewModel,
+    ratedMovieViewModel: RatedMovieViewModel,
     onBack: () -> Unit,
     watchlistControl: (String,String) -> Unit,
     likedListControl: (String,String) -> Unit,
+    watchedListControl: (String,String) -> Unit,
+    ratedListControl: (String,Int) -> Unit,
     gotoWatchlist:(String,String)->Unit,
-    gotoLikedList:(String,String)->Unit
+    gotoLikedList:(String,String)->Unit,
+    gotoWatchedList:(String,String)->Unit
 ) {
     val watchlist by watchlistViewModel.watchlist.observeAsState(mutableListOf())
     val likedList by likedListViewModel.likedList.observeAsState(mutableListOf())
+    val watchedList by watchedMoviesViewModel.watchedList.observeAsState(mutableListOf())
+    val ratedMovie by ratedMovieViewModel.ratedMovies.observeAsState(mutableListOf())
 
     val initialWatched = watchlist.any { it.movieId == movieId }
     val initialLiked = likedList.any { it.movieId == movieId }
+    val initialWatch = watchedList.any { it.movieId == movieId }
 
     var isWatched by remember { mutableStateOf(initialWatched) }
     var isLiked by remember { mutableStateOf(initialLiked) }
+    var isWatch by remember { mutableStateOf(initialWatch) }
 
     val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
 
     var rating1 by remember { mutableIntStateOf(0) }
@@ -76,6 +86,14 @@ fun MovieDetails(
     LaunchedEffect(likedList) {
         isLiked = likedList.any { it.movieId == movieId }
 
+    }
+    LaunchedEffect(watchedList) {
+        isWatch = watchedList.any { it.movieId == movieId }
+
+    }
+    LaunchedEffect(ratedMovie) {
+        val previousRating = ratedMovie.find { it.movieId == movieId }?.rating ?: 0
+        rating1 = previousRating
     }
     GlideImage(
         model = "https://image.tmdb.org/t/p/w500/${posterPath}",
@@ -110,7 +128,7 @@ fun MovieDetails(
         Button(onClick = { gotoLikedList(movieId, posterPath) } ) {
             Text("go to liked list")
         }
-        Button(onClick = { gotoLikedList(movieId, posterPath) } ) {
+        Button(onClick = { gotoWatchedList(movieId, posterPath) } ) {
             Text("go to watched list")
         }
         Button(onClick = {
@@ -156,12 +174,12 @@ fun MovieDetails(
                                 .size(120.dp)
                         )
                         Icon(
-                            painter = painterResource(if (isLiked) R.drawable.watched else R.drawable.not_watched),
+                            painter = painterResource(if (isWatch) R.drawable.watched else R.drawable.not_watched),
                             contentDescription = "watched Icon",
                             modifier = Modifier
                                 .clickable {
-                                    isLiked = !isLiked
-                                    likedListControl(movieId, posterPath)
+                                    isWatch=!isWatch
+                                    watchedListControl(movieId, posterPath)
                                 }
                                 .size(120.dp)
                         )
@@ -174,10 +192,12 @@ fun MovieDetails(
                         onRatingChanged = {
                             rating1 = it
                         },
+                        movieId = movieId,
                         starsColor = Color.Yellow,
-                        onDoubleTap = {
-                            rating1= it-1
+                        saveRating = {movieId,rating->
+                            ratedListControl(movieId,rating)
                         }
+
                     )
                 }
 
