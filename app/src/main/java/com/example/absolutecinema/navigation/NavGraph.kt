@@ -96,7 +96,7 @@ fun NavGraph(
             route = Screen.Watched.route,
         ) { backStackEntry ->
             WatchedScreen (
-                viewModel = watchlistViewModel,
+                viewModel = watchedListViewModel,
                 onMovieClick = { deliverables ->
                     navController.navigate(Screen.Details.createRoute(deliverables))
                 }
