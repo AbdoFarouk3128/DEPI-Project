@@ -29,6 +29,14 @@ sealed class Screen(val route: String) {
             return "watched/$encoded"
         }
     }
+    object Rated:Screen("rated/{deliverables}"){
+        fun createRoute(deliverables: Deliverables): String {
+            val gson = com.google.gson.Gson()
+            val json = gson.toJson(deliverables)
+            val encoded = URLEncoder.encode(json, "UTF-8")
+            return "watched/$encoded"
+        }
+    }
 }
 data class Deliverables(
     val movieId: String,

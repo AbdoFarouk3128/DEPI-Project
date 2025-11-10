@@ -12,6 +12,7 @@ import com.example.absolutecinema.ui.MovieScreen
 import com.example.absolutecinema.ui.WatchedScreen
 import com.example.absolutecinema.ui.WatchlistScreen
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
+import com.example.absolutecinema.viewmodel.RatedMovieViewModel
 import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
 import com.google.gson.Gson
@@ -22,12 +23,14 @@ fun NavGraph(
     navController: NavHostController,
     watchlistViewModel: WatchlistMoviesViewModel,
     likedMoviesViewModel: LikedMoviesViewModel,
-    watchedListViewModel:WatchedMoviesViewModel
+    watchedListViewModel:WatchedMoviesViewModel,
+    ratedMovieViewModel: RatedMovieViewModel,
 ) {
     NavHost(
         navController = navController,
         startDestination = Screen.Movies.route
     ) {
+        //from here
         composable(route = Screen.Movies.route) {
             MovieScreen(
                 onMovieClick = { deliverables ->
@@ -36,6 +39,7 @@ fun NavGraph(
 
                 )
         }
+        //to here
 
         //  Movie details screen
         composable(
@@ -53,22 +57,31 @@ fun NavGraph(
                 title = deliverables.title,
                 watchlistViewModel = watchlistViewModel,
                 likedListViewModel = likedMoviesViewModel,
+                watchedMoviesViewModel =  watchedListViewModel,
+                ratedMovieViewModel = ratedMovieViewModel,
                 onBack = { navController.popBackStack() },
                 watchlistControl = { movieId, posterPath ->
                     watchlistViewModel.watchlistControl(movieId, posterPath)
-
                 },
                 likedListControl = { movieId, posterPath ->
                     likedMoviesViewModel.likedListControl(movieId, posterPath)
 
                 },
+                watchedListControl = {movieId, posterPath ->
+                    watchedListViewModel.watchedListControl(movieId,posterPath)
+                },
+                ratedListControl = {movieId,rating->
+                    ratedMovieViewModel.ratedMoviesControl(movieId,rating)
+                },
                 gotoWatchlist = { movieId, poster ->
                     navController.navigate(Screen.Watchlist.createRoute(movieId, poster))
                 },
-
                 gotoLikedList = { movieId, poster ->
                     navController.navigate(Screen.LikedList.createRoute(movieId, poster))
                 },
+                gotoWatchedList = { movieId, poster ->
+                    navController.navigate(Screen.Watched.createRoute(deliverables))
+                }
             )
         }
         composable(

@@ -99,7 +99,7 @@ class RatedMovieViewModel:ViewModel(){
     private val _ratedMovies =MutableLiveData<MutableList<RatedMovieData>>(mutableListOf())
     val ratedMovies :LiveData<MutableList<RatedMovieData>> =_ratedMovies
 
-    fun ratedMovies(movieId: String,rating: Int){
+    fun ratedMoviesControl(movieId: String,rating: Int){
         val currentList =_ratedMovies.value?: mutableListOf()
         val existingItem = currentList.find { it.movieId==movieId }
         if (existingItem != null) {

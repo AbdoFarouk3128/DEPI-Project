@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.absolutecinema.navigation.NavGraph
 import com.example.absolutecinema.ui.theme.AbsoluteCinemaTheme
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
+import com.example.absolutecinema.viewmodel.RatedMovieViewModel
 import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
 
@@ -24,15 +25,16 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val watchListViewModel: WatchlistMoviesViewModel = viewModel()
                 val likedListViewModel: LikedMoviesViewModel = viewModel()
-                val watchedMoviesViewModel: WatchedMoviesViewModel = viewModel()
+                val watchedListViewModel: WatchedMoviesViewModel = viewModel()
+                val ratedMovieViewModel:RatedMovieViewModel= viewModel()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
                         NavGraph(
                             navController = navController,
                             watchlistViewModel = watchListViewModel,
                             likedMoviesViewModel = likedListViewModel,
-                            watchedListViewModel = watchedMoviesViewModel
-
+                            watchedListViewModel = watchedListViewModel,
+                            ratedMovieViewModel = ratedMovieViewModel,
                         )
                     }
                 }
@@ -42,10 +44,4 @@ class MainActivity : ComponentActivity() {
 }
 
 
-//Box(modifier = Modifier.padding(innerPadding)) {
-//    NavGraph(
-//        navController = navController,
-//        watchlistViewModel = watchListViewModel,
-//        likedMoviesViewModel = likedListViewModel
-//    )
-//AbsoluteCinemaTheme
+
