@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.absolutecinema.navigation.NavGraph
+import com.example.absolutecinema.ui.componants.BottomNavigationBar
 import com.example.absolutecinema.ui.theme.AbsoluteCinemaTheme
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
@@ -26,8 +27,13 @@ class MainActivity : ComponentActivity() {
                 val watchListViewModel: WatchlistMoviesViewModel = viewModel()
                 val likedListViewModel: LikedMoviesViewModel = viewModel()
                 val watchedListViewModel: WatchedMoviesViewModel = viewModel()
-                val ratedMovieViewModel:RatedMovieViewModel= viewModel()
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                val ratedMovieViewModel: RatedMovieViewModel = viewModel()
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        BottomNavigationBar(navController = navController)
+                    }
+                ) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
                         NavGraph(
                             navController = navController,
