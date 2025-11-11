@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.R
-import com.example.absolutecinema.data.getDetails
+import com.example.absolutecinema.data.api.getDetails
 import com.example.absolutecinema.navigation.Deliverables
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 

@@ -1,9 +1,6 @@
-package com.example.absolutecinema
+package com.example.absolutecinema.ui
 
 
-import android.content.Context
-import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,35 +37,51 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import com.example.absolutecinema.R
+import com.example.absolutecinema.ui.theme.darkBlue
+import com.example.absolutecinema.ui.theme.red
+import com.example.absolutecinema.viewmodel.FirebaseViewModel
 import com.google.firebase.auth.FirebaseAuth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.text.input.KeyboardType
-
 
 
 @Composable
-fun SignUP ( navController: NavController,auth: FirebaseAuth) {
-
+fun SignUP(
+    goToApp:()->Unit,
+    haveAnAccount:()->Unit,
+    viewModel: FirebaseViewModel
+    ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var confirmpassword by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
     var firstname by remember { mutableStateOf("") }
-    var secondname by remember { mutableStateOf("") }
+    var secondName by remember { mutableStateOf("") }
 
-    val darkBlue = Color(0xFF0B131D)
-    val red = Color(0xFFE50914)
+
+    if(isLoading){
+        Box(
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .size(50.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = Color.White,
+                strokeWidth = 4.dp,
+
+            )
+        }
+    }else{
+
 
     Box(
         modifier = Modifier
@@ -122,8 +138,8 @@ fun SignUP ( navController: NavController,auth: FirebaseAuth) {
                 )
 
                 OutlinedTextField(
-                    value = secondname,
-                    onValueChange = { secondname = it },
+                    value = secondName,
+                    onValueChange = { secondName = it },
                     singleLine = true,
                     label = { Text(text = "Second name", fontSize = 12.sp) },
                     colors = OutlinedTextFieldDefaults.colors(
@@ -198,8 +214,8 @@ fun SignUP ( navController: NavController,auth: FirebaseAuth) {
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = confirmpassword,
-                onValueChange = { confirmpassword = it },
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
                 singleLine = true,
                 label = { Text(text = "Confirm password") },
                 visualTransformation = if (passwordVisible)
@@ -234,59 +250,7 @@ fun SignUP ( navController: NavController,auth: FirebaseAuth) {
 
             Button(
                 onClick = {
-                    when {
-                        email.isBlank() || password.isBlank() || confirmpassword.isBlank() ->
-                            Toast.makeText(context, "Missing fields", Toast.LENGTH_SHORT).show()
-
-                        password.length < 6 ->
-                            Toast.makeText(context, "Short Password", Toast.LENGTH_SHORT).show()
-
-                        password != confirmpassword ->
-                            Toast.makeText(context, "Passwords don't match", Toast.LENGTH_SHORT)
-                                .show()
-
-                        else -> {
-                            isLoading = true
-                            auth.createUserWithEmailAndPassword(email, password)
-                                .addOnCompleteListener { task ->
-                                    isLoading = false
-                                    if (task.isSuccessful) {
-                                        val user = auth.currentUser
-                                        user?.sendEmailVerification()
-                                            ?.addOnCompleteListener { verifyTask ->
-                                                if (verifyTask.isSuccessful) {
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Verification email sent",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                } else {
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Failed to send verification email",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
-                                            }
-
-                                        Toast.makeText(
-                                            context,
-                                            "Account created successfully",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        navController.navigate("login") {
-                                            popUpTo("signup") { inclusive = true }
-                                        }
-                                    } else {
-                                        Toast.makeText(
-                                            context,
-                                            task.exception?.message ?: "Authentication failed",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                        }
-                    }
+                    viewModel.signUp(email,password,confirmPassword,context,goToApp)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = red),
                 shape = RoundedCornerShape(12.dp),
@@ -299,23 +263,25 @@ fun SignUP ( navController: NavController,auth: FirebaseAuth) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton(onClick = { navController.navigate("login") }) {
+            TextButton(onClick = haveAnAccount) {
                 Text("Already have an account? Log in", color = red)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // ✅ ProgressBar بنفس تنسيق XML
-            AnimatedVisibility(visible = isLoading) {
-                CircularProgressIndicator(
-                    color = Color.White,
-                    strokeWidth = 4.dp,
-                    modifier = Modifier
-                        .padding(top = 10.dp)
-                        .size(50.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-            }
+//            AnimatedVisibility(visible = isLoading) {
+//                CircularProgressIndicator(
+//                    color = Color.White,
+//                    strokeWidth = 4.dp,
+//                    modifier = Modifier
+//                        .padding(top = 10.dp)
+//                        .size(50.dp)
+//                        .align(Alignment.CenterHorizontally)
+//                )
+//            }
+
         }
     }
+        }
 }

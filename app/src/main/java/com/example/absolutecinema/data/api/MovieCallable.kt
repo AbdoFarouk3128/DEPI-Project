@@ -1,4 +1,4 @@
-package com.example.absolutecinema.data
+package com.example.absolutecinema.data.api
 
 import retrofit2.Call
 import retrofit2.http.GET

@@ -1,4 +1,4 @@
-package com.example.absolutecinema
+package com.example.absolutecinema.ui
 
 
 import androidx.compose.foundation.background

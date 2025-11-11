@@ -33,7 +33,6 @@ import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheet(
-    showBottomSheet:Boolean,
     movieId: String,
     posterPath: String,
     watchlistViewModel: WatchlistMoviesViewModel,

@@ -16,7 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.absolutecinema.data.getMovies
+import com.example.absolutecinema.data.api.getMovies
 import com.example.absolutecinema.navigation.Deliverables
 
 @OptIn(ExperimentalGlideComposeApi::class)

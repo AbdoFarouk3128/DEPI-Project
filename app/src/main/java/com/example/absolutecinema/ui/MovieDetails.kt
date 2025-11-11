@@ -3,7 +3,6 @@ package com.example.absolutecinema.ui
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.view.Window
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,12 +17,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -32,11 +29,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.R
-import com.example.absolutecinema.data.*
+import com.example.absolutecinema.data.api.CastMember
+import com.example.absolutecinema.data.api.MovieDetails
+import com.example.absolutecinema.data.api.MoviesRelated
+import com.example.absolutecinema.data.api.VideosResponse
+import com.example.absolutecinema.data.api.getMovieDetails
 import com.example.absolutecinema.navigation.Deliverables
 import com.example.absolutecinema.ui.componants.BottomSheet
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
@@ -59,9 +59,6 @@ fun MovieDetails(
     likedListControl: (String, String) -> Unit,
     watchedListControl: (String, String) -> Unit,
     ratedListControl: (String, Int) -> Unit,
-    gotoWatchlist: (String, String) -> Unit,
-    gotoLikedList: (String, String) -> Unit,
-    gotoWatchedList: (String, String) -> Unit
 ) {
     var movieDetails by remember { mutableStateOf<MovieDetails?>(null) }
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -90,7 +87,6 @@ fun MovieDetails(
 
     if (showBottomSheet) {
         BottomSheet(
-            showBottomSheet = showBottomSheet,
             movieId = movieId,
             posterPath = posterPath,
             watchlistViewModel = watchlistViewModel,

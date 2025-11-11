@@ -7,10 +7,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.absolutecinema.ui.LikedListScreen
+import com.example.absolutecinema.ui.Login
 import com.example.absolutecinema.ui.MovieDetails
 import com.example.absolutecinema.ui.MovieScreen
+import com.example.absolutecinema.ui.RatedScreen
+import com.example.absolutecinema.ui.SignUP
 import com.example.absolutecinema.ui.WatchedScreen
 import com.example.absolutecinema.ui.WatchlistScreen
+import com.example.absolutecinema.viewmodel.FirebaseViewModel
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
 import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
@@ -23,12 +27,13 @@ fun NavGraph(
     navController: NavHostController,
     watchlistViewModel: WatchlistMoviesViewModel,
     likedMoviesViewModel: LikedMoviesViewModel,
-    watchedListViewModel:WatchedMoviesViewModel,
+    watchedListViewModel: WatchedMoviesViewModel,
     ratedMovieViewModel: RatedMovieViewModel,
+    firebaseViewModel: FirebaseViewModel
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Movies.route
+        startDestination = Screen.SignUP.route
     ) {
         //from here
         composable(route = Screen.Movies.route) {
@@ -36,8 +41,7 @@ fun NavGraph(
                 onMovieClick = { deliverables ->
                     navController.navigate(Screen.Details.createRoute(deliverables))
                 },
-
-                )
+            )
         }
         //to here
 
@@ -57,10 +61,10 @@ fun NavGraph(
                 title = deliverables.title,
                 watchlistViewModel = watchlistViewModel,
                 likedListViewModel = likedMoviesViewModel,
-                watchedMoviesViewModel =  watchedListViewModel,
+                watchedMoviesViewModel = watchedListViewModel,
                 ratedMovieViewModel = ratedMovieViewModel,
                 onBack = { navController.popBackStack() },
-                onMovieClick = { movieDeliverables ->  // ✅ ADDED THIS LINE - This was the only missing parameter
+                onMovieClick = { movieDeliverables ->
                     navController.navigate(Screen.Details.createRoute(movieDeliverables))
                 },
                 watchlistControl = { movieId, posterPath ->
@@ -70,21 +74,21 @@ fun NavGraph(
                     likedMoviesViewModel.likedListControl(movieId, posterPath)
 
                 },
-                watchedListControl = {movieId, posterPath ->
-                    watchedListViewModel.watchedListControl(movieId,posterPath)
+                watchedListControl = { movieId, posterPath ->
+                    watchedListViewModel.watchedListControl(movieId, posterPath)
                 },
-                ratedListControl = {movieId,rating->
-                    ratedMovieViewModel.ratedMoviesControl(movieId,rating)
+                ratedListControl = { movieId, rating ->
+                    ratedMovieViewModel.ratedMoviesControl(movieId, rating)
                 },
-                gotoWatchlist = { movieId, poster ->
-                    navController.navigate(Screen.Watchlist.createRoute(movieId, poster))
-                },
-                gotoLikedList = { movieId, poster ->
-                    navController.navigate(Screen.LikedList.createRoute(movieId, poster))
-                },
-                gotoWatchedList = { movieId, poster ->
-                    navController.navigate(Screen.Watched.createRoute(deliverables))
-                }
+//                gotoWatchlist = { movieId, poster ->
+//                    navController.navigate(Screen.Watchlist.createRoute(movieId, poster))
+//                },
+//                gotoLikedList = { movieId, poster ->
+//                    navController.navigate(Screen.LikedList.createRoute(movieId, poster))
+//                },
+//                gotoWatchedList = { movieId, poster ->
+//                    navController.navigate(Screen.Watched.createRoute(deliverables))
+//                }
             )
         }
         composable(
@@ -111,13 +115,50 @@ fun NavGraph(
         composable(
             route = Screen.Watched.route,
         ) { backStackEntry ->
-            WatchedScreen (
+            WatchedScreen(
                 viewModel = watchedListViewModel,
                 onMovieClick = { deliverables ->
                     navController.navigate(Screen.Details.createRoute(deliverables))
                 }
             )
         }
+        composable(
+            route = Screen.Rated.route,
+        ) { backStackEntry ->
+            RatedScreen(
+                viewModel = ratedMovieViewModel,
+                onMovieClick = { deliverables ->
+                    navController.navigate(Screen.Details.createRoute(deliverables))
+                }
+            )
+        }
+        composable(route = Screen.SignUP.route) {
+            SignUP(
+                viewModel = firebaseViewModel,
+                goToApp = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.SignUP.route) { inclusive = true }
+                    }
+                },
+                haveAnAccount = {
+                    navController.navigate(Screen.Login.route)
+                }
+            )
+        }
+        composable(route = Screen.Login.route) {
+            Login(
+                viewModel = firebaseViewModel,
+                noAccount = {
+                    navController.navigate(Screen.SignUP.route)
+                },
+                goToApp = {
+                    navController.navigate(Screen.Movies.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+//        composable(route = Screen.Home.route) { Home(navController, auth) }
 
     }
 }

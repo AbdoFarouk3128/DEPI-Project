@@ -7,18 +7,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key.Companion.Home
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.absolutecinema.navigation.NavGraph
 import com.example.absolutecinema.ui.componants.BottomNavigationBar
 import com.example.absolutecinema.ui.theme.AbsoluteCinemaTheme
+import com.example.absolutecinema.viewmodel.FirebaseViewModel
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
-import com.example.absolutecinema.viewmodel.Login
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
 import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
@@ -45,6 +41,7 @@ class MainActivity : ComponentActivity() {
                 val likedListViewModel: LikedMoviesViewModel = viewModel()
                 val watchedListViewModel: WatchedMoviesViewModel = viewModel()
                 val ratedMovieViewModel: RatedMovieViewModel = viewModel()
+                val firebaseViewModel:FirebaseViewModel= viewModel()
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
@@ -58,6 +55,7 @@ class MainActivity : ComponentActivity() {
                             likedMoviesViewModel = likedListViewModel,
                             watchedListViewModel = watchedListViewModel,
                             ratedMovieViewModel = ratedMovieViewModel,
+                            firebaseViewModel = firebaseViewModel,
                         )
                     }
                 }
@@ -66,19 +64,19 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun Navigation(auth: FirebaseAuth, startDestination: String, modifier: Modifier = Modifier) {
-
-    val navController = rememberNavController()
-    NavHost(
-        navController = navController,
-        startDestination = startDestination
-    ) {
-        composable("signup") { SignUP(navController, auth) }
-        composable("login") { Login(navController, auth) }
-        composable("home") { Home(navController, auth) }
-    }
-}
+//@Composable
+//fun Navigation(auth: FirebaseAuth, startDestination: String, modifier: Modifier = Modifier) {
+//
+//    val navController = rememberNavController()
+//    NavHost(
+//        navController = navController,
+//        startDestination = startDestination
+//    ) {
+//        composable("signup") { SignUP(navController, auth) }
+//        composable("login") { Login(navController, auth) }
+//        composable("home") { Home(navController, auth) }
+//    }
+//}
 
 
 
