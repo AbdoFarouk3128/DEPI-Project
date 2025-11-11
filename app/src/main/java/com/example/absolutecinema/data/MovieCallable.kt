@@ -13,4 +13,8 @@ interface MovieCallable {
 
     @GET("movie/{id}/credits?language=en-US&api_key=d997190299b8c60ad08ef02b0dc4c804")
     fun getCredits(@Path("id") id: String): Call<Credits>
+
+    // ✅ ADD THIS - Videos/Trailers endpoint
+    @GET("movie/{id}/videos?language=en-US&api_key=d997190299b8c60ad08ef02b0dc4c804")
+    fun getVideos(@Path("id") id: String): Call<VideosResponse>
 }

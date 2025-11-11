@@ -19,7 +19,8 @@ data class MovieDetails(
     @SerializedName("vote_average") val voteAverage: Double,
     val genres: List<Genre>,
     var recommendations: List<MoviesRelated> = emptyList(),
-    var credits: Credits? = null
+    var credits: Credits? = null,
+    var videos: VideosResponse? = null // ✅ ADD THIS
 )
 
 data class Genre(
@@ -44,4 +45,23 @@ data class MoviesRelated(
     @SerializedName("poster_path") val poster: String?,
     val id: String,
     val title: String
+)
+
+// ✅ ADD THESE - Video/Trailer data classes
+data class VideosResponse(
+    val id: Int,
+    val results: List<Video>
+)
+
+data class Video(
+    @SerializedName("iso_639_1") val iso6391: String,
+    @SerializedName("iso_3166_1") val iso31661: String,
+    val name: String,
+    val key: String,
+    val site: String,
+    val size: Int,
+    val type: String,
+    val official: Boolean,
+    @SerializedName("published_at") val publishedAt: String,
+    val id: String
 )
