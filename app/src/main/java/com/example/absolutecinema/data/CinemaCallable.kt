@@ -2,6 +2,7 @@ package com.example.absolutecinema.data
 
 import Cinema
 import Results
+import Trailer
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
