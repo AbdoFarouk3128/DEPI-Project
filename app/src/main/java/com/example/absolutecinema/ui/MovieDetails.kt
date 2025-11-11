@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.view.Window
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -29,37 +31,54 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.Placeholder
 import com.example.absolutecinema.R
 import com.example.absolutecinema.data.*
 import com.example.absolutecinema.navigation.Deliverables
-import com.example.absolutecinema.ui.componants.RatingBar
+import com.example.absolutecinema.ui.componants.BottomSheet
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
+import com.example.absolutecinema.viewmodel.RatedMovieViewModel
+import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
 
 @Composable
 fun MovieDetails(
     movieId: String,
+    posterPath: String,
+    title: String,
     watchlistViewModel: WatchlistMoviesViewModel,
     likedListViewModel: LikedMoviesViewModel,
+    watchedMoviesViewModel: WatchedMoviesViewModel,
+    ratedMovieViewModel: RatedMovieViewModel,
     onBack: () -> Unit,
     onMovieClick: (Deliverables) -> Unit,
     watchlistControl: (String, String) -> Unit,
     likedListControl: (String, String) -> Unit,
-    gotoWatchlist: () -> Unit,
-    gotoLikedList: () -> Unit
+    watchedListControl: (String, String) -> Unit,
+    ratedListControl: (String, Int) -> Unit,
+    gotoWatchlist: (String, String) -> Unit,
+    gotoLikedList: (String, String) -> Unit,
+    gotoWatchedList: (String, String) -> Unit
 ) {
     var movieDetails by remember { mutableStateOf<MovieDetails?>(null) }
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    // Set system bar colors
+    // ✅ Keep status bar icons DARK (visible on light background at top)
     val view = LocalView.current
-    SideEffect {
-        val window: Window? = (view.context as? Activity)?.window
-        window?.statusBarColor = Color.Black.toArgb()
-        window?.navigationBarColor = Color.Black.toArgb()
+    DisposableEffect(Unit) {
+        val window = (view.context as? Activity)?.window
+        window?.let {
+            // Keep status bar white/light background
+            it.statusBarColor = android.graphics.Color.WHITE
+            // Set icons to DARK so they're visible on white background
+            androidx.core.view.WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = true
+        }
+
+        onDispose {
+            // Keep the same when leaving (no change needed)
+        }
     }
 
     LaunchedEffect(movieId) {
@@ -69,14 +88,18 @@ fun MovieDetails(
     }
 
     if (showBottomSheet) {
-        ManageMovieSheet(
-            movieDetails = movieDetails,
+        BottomSheet(
+            showBottomSheet = showBottomSheet,
+            movieId = movieId,
+            posterPath = posterPath,
             watchlistViewModel = watchlistViewModel,
             likedListViewModel = likedListViewModel,
+            watchedMoviesViewModel = watchedMoviesViewModel,
+            ratedMovieViewModel = ratedMovieViewModel,
             watchlistControl = watchlistControl,
             likedListControl = likedListControl,
-            gotoWatchlist = gotoWatchlist,
-            gotoLikedList = gotoLikedList,
+            watchedListControl = watchedListControl,
+            ratedListControl = ratedListControl,
             onDismiss = { showBottomSheet = false }
         )
     }
@@ -84,20 +107,34 @@ fun MovieDetails(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .systemBarsPadding()
     ) {
         if (movieDetails != null) {
             val details = movieDetails!!
             item { BackdropHeader(details, onBack) }
 
+            // About the Movie Section
             item {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = "About the Movie",
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = details.overview,
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // Modern Manage Movie Section
+            item {
+                ModernManageMovieSection(onClick = { showBottomSheet = true })
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
             details.credits?.cast?.let { cast ->
@@ -115,17 +152,6 @@ fun MovieDetails(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
-
-            item {
-                Button(
-                    onClick = { showBottomSheet = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text("Manage Movie")
-                }
-            }
         } else {
             item {
                 CircularProgressIndicator(
@@ -138,25 +164,102 @@ fun MovieDetails(
     }
 }
 
+@Composable
+fun ModernManageMovieSection(onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = "Manage Movie",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Add to lists, rate & review",
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                )
+            }
+            Icon(
+                painter = painterResource(R.drawable.baseline_keyboard_arrow_right_24),
+                contentDescription = "Manage",
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(32.dp)
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun BackdropHeader(movie: MovieDetails, onBack: () -> Unit) {
     val context = LocalContext.current
+    val voteOutOfFive = (movie.voteAverage / 2.0).toFloat()
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp)
+            .height(300.dp) // ✅ Back to normal height
     ) {
+        // Backdrop Image
         GlideImage(
             model = "https://image.tmdb.org/t/p/w1280/${movie.backdropPath}",
             contentDescription = movie.originalTitle,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
-        IconButton(onClick = onBack, modifier = Modifier.align(Alignment.TopStart)) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+
+        // Gradient overlay
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .align(Alignment.BottomCenter)
+                .background(
+                    brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.7f),
+                            Color.Black.copy(alpha = 0.9f)
+                        )
+                    )
+                )
+        )
+
+        // Back button - simple positioning
+        IconButton(
+            onClick = onBack,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(8.dp)
+        ) {
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back",
+                tint = Color.White,
+                modifier = Modifier.size(28.dp)
+            )
         }
+
+        // Movie info
         Row(
             modifier = Modifier
                 .align(Alignment.BottomStart)
@@ -167,8 +270,8 @@ fun BackdropHeader(movie: MovieDetails, onBack: () -> Unit) {
                 contentDescription = movie.originalTitle,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .width(120.dp)
-                    .height(180.dp)
+                    .width(126.dp)
+                    .height(186.dp)
                     .clip(RoundedCornerShape(8.dp))
             )
             Column(
@@ -180,22 +283,92 @@ fun BackdropHeader(movie: MovieDetails, onBack: () -> Unit) {
                     text = movie.originalTitle,
                     color = Color.White,
                     fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    style = androidx.compose.ui.text.TextStyle(
+                        shadow = androidx.compose.ui.graphics.Shadow(
+                            color = Color.Black,
+                            offset = androidx.compose.ui.geometry.Offset(2f, 2f),
+                            blurRadius = 4f
+                        )
+                    )
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${movie.releaseDate.substringBefore("-")} \u2022 ${movie.genres.joinToString { it.name }}",
+                    text = "${movie.releaseDate.substringBefore("-")} • ${movie.genres.joinToString { it.name }}",
                     color = Color.White,
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    style = androidx.compose.ui.text.TextStyle(
+                        shadow = androidx.compose.ui.graphics.Shadow(
+                            color = Color.Black,
+                            offset = androidx.compose.ui.geometry.Offset(2f, 2f),
+                            blurRadius = 4f
+                        )
+                    )
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                movie.imdbId?.let { imdbId ->
-                    TextButton(onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.imdb.com/title/$imdbId/"))
-                        context.startActivity(intent)
-                    }) {
-                        Text("View on IMDb", color = Color.White)
+                // IMDb and Rating Row
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp) // ✅ Reduced from 8.dp to 4.dp
+                ) {
+                    movie.imdbId?.let { imdbId ->
+                        // Rectangular IMDb Button
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color(0xFFF5C518) // IMDb yellow
+                            ),
+                            modifier = Modifier.clickable {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.imdb.com/title/$imdbId/"))
+                                context.startActivity(intent)
+                            }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.imdb_logo),
+                                    contentDescription = "View on IMDb",
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.size(45.dp) // ✅ Increased from 40.dp to 52.dp
+                                )
+                            }
+                        }
+                    }
+
+                    // Rating Display
+                    Card(
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.Black.copy(alpha = 0.6f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Star,
+                                contentDescription = "Rating",
+                                tint = Color(0xFFFFC107),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = String.format("%.1f", voteOutOfFive),
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "/5",
+                                color = Color.White.copy(alpha = 0.7f),
+                                fontSize = 14.sp
+                            )
+                        }
                     }
                 }
             }
@@ -223,20 +396,15 @@ fun CastMemberItem(member: CastMember) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(80.dp)
     ) {
-        // First, check if the profilePath from the API is null or empty.
         if (member.profilePath.isNullOrEmpty()) {
-            // If the path is missing, display your local vector drawable directly.
-            // This avoids calling Glide with a bad URL.
             Icon(
                 painter = painterResource(id = R.drawable.ic_person_placeholder),
-                contentDescription = member.name, // Use the name for accessibility
+                contentDescription = member.name,
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
             )
         } else {
-            // If the path exists, use GlideImage to load the image from the network.
-            // We remove all failure/error parameters to avoid compilation errors.
             GlideImage(
                 model = "https://image.tmdb.org/t/p/w200/${member.profilePath}",
                 contentDescription = member.name,
@@ -283,98 +451,4 @@ fun RecommendedMovieItem(movie: MoviesRelated, onMovieClick: (Deliverables) -> U
                 onMovieClick(Deliverables(movieId = movie.id, poster = movie.poster ?: "", title = movie.title))
             }
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ManageMovieSheet(
-    movieDetails: MovieDetails?,
-    watchlistViewModel: WatchlistMoviesViewModel,
-    likedListViewModel: LikedMoviesViewModel,
-    watchlistControl: (String, String) -> Unit,
-    likedListControl: (String, String) -> Unit,
-    gotoWatchlist: () -> Unit,
-    gotoLikedList: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    val watchlist by watchlistViewModel.watchlist.observeAsState(emptyList())
-    val likedList by likedListViewModel.likedList.observeAsState(emptyList())
-
-    // States for the icons derived from ViewModels
-    val isInWatchlist = movieDetails?.id?.let { id -> watchlist.any { it.movieId == id } } ?: false
-    val isLiked = movieDetails?.id?.let { id -> likedList.any { it.movieId == id } } ?: false
-
-    // Local state for the "watched" icon
-    var isActuallyWatched by remember { mutableStateOf(false) }
-    var rating1 by remember { mutableIntStateOf(0) }
-
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Icon 1: Watchlist
-                Icon(
-                    painter = painterResource(if (isInWatchlist) R.drawable.watchlist_added else R.drawable.watchlist_not),
-                    contentDescription = "Watchlist Icon",
-                    modifier = Modifier
-                        .clickable {
-                            movieDetails?.let { watchlistControl(it.id, it.posterPath ?: "") }
-                        }
-                        .size(120.dp)
-                        .padding(8.dp)
-                )
-                // Icon 2: Like
-                Icon(
-                    painter = painterResource(if (isLiked) R.drawable.heart else R.drawable.heart_empty),
-                    contentDescription = "Liked Icon",
-                    modifier = Modifier
-                        .clickable {
-                            movieDetails?.let { likedListControl(it.id, it.posterPath ?: "") }
-                        }
-                        .size(120.dp)
-                        .padding(8.dp)
-                )
-                // Icon 3: Watched
-                Icon(
-                    painter = painterResource(if (isActuallyWatched) R.drawable.watched else R.drawable.not_watched),
-                    contentDescription = "Watched Icon",
-                    modifier = Modifier
-                        .clickable {
-                            isActuallyWatched = !isActuallyWatched
-                            // TODO: Add your logic here to call a ViewModel for the watched status
-                        }
-                        .size(120.dp)
-                        .padding(8.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Fixed RatingBar with proper parameters
-            movieDetails?.let { movie ->
-                RatingBar(
-                    modifier = Modifier.height(50.dp),
-                    rating = rating1,
-                    onRatingChanged = {
-                        rating1 = it
-                    },
-                    stars = 5,
-                    starsColor = Color.Yellow,
-                    movieId = movie.id,  // ✅ Fixed: Pass the actual movie ID
-                    saveRating = { movieId, rating ->  // ✅ Fixed: Lambda to save rating
-                        // Add your logic to save the rating to database/ViewModel
-                        // For example: ratingViewModel.saveRating(movieId, rating)
-                    }
-                )
-            }
-        }
-    }
 }
