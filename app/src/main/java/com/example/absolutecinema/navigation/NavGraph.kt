@@ -60,6 +60,9 @@ fun NavGraph(
                 watchedMoviesViewModel =  watchedListViewModel,
                 ratedMovieViewModel = ratedMovieViewModel,
                 onBack = { navController.popBackStack() },
+                onMovieClick = { movieDeliverables ->  // ✅ ADDED THIS LINE - This was the only missing parameter
+                    navController.navigate(Screen.Details.createRoute(movieDeliverables))
+                },
                 watchlistControl = { movieId, posterPath ->
                     watchlistViewModel.watchlistControl(movieId, posterPath)
                 },
