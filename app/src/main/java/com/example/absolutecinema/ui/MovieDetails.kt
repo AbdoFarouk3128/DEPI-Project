@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.R
+import com.example.absolutecinema.ui.componants.BottomSheet
 import com.example.absolutecinema.ui.componants.RatingBar
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
@@ -62,39 +63,39 @@ fun MovieDetails(
     gotoLikedList:(String,String)->Unit,
     gotoWatchedList:(String,String)->Unit
 ) {
-    val watchlist by watchlistViewModel.watchlist.observeAsState(mutableListOf())
-    val likedList by likedListViewModel.likedList.observeAsState(mutableListOf())
-    val watchedList by watchedMoviesViewModel.watchedList.observeAsState(mutableListOf())
-    val ratedMovie by ratedMovieViewModel.ratedMovies.observeAsState(mutableListOf())
-
-    val initialWatched = watchlist.any { it.movieId == movieId }
-    val initialLiked = likedList.any { it.movieId == movieId }
-    val initialWatch = watchedList.any { it.movieId == movieId }
-
-    var isWatched by remember { mutableStateOf(initialWatched) }
-    var isLiked by remember { mutableStateOf(initialLiked) }
-    var isWatch by remember { mutableStateOf(initialWatch) }
-
+//    val watchlist by watchlistViewModel.watchlist.observeAsState(mutableListOf())
+//    val likedList by likedListViewModel.likedList.observeAsState(mutableListOf())
+//    val watchedList by watchedMoviesViewModel.watchedList.observeAsState(mutableListOf())
+//    val ratedMovie by ratedMovieViewModel.ratedMovies.observeAsState(mutableListOf())
+//
+//    val initialWatched = watchlist.any { it.movieId == movieId }
+//    val initialLiked = likedList.any { it.movieId == movieId }
+//    val initialWatch = watchedList.any { it.movieId == movieId }
+//
+//    var isWatched by remember { mutableStateOf(initialWatched) }
+//    var isLiked by remember { mutableStateOf(initialLiked) }
+//    var isWatch by remember { mutableStateOf(initialWatch) }
+//
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
-
-    var rating1 by remember { mutableIntStateOf(0) }
-    LaunchedEffect(watchlist) {
-        isWatched = watchlist.any { it.movieId == movieId }
-
-    }
-    LaunchedEffect(likedList) {
-        isLiked = likedList.any { it.movieId == movieId }
-
-    }
-    LaunchedEffect(watchedList) {
-        isWatch = watchedList.any { it.movieId == movieId }
-
-    }
-    LaunchedEffect(ratedMovie) {
-        val previousRating = ratedMovie.find { it.movieId == movieId }?.rating ?: 0
-        rating1 = previousRating
-    }
+//
+//    var rating1 by remember { mutableIntStateOf(0) }
+//    LaunchedEffect(watchlist) {
+//        isWatched = watchlist.any { it.movieId == movieId }
+//
+//    }
+//    LaunchedEffect(likedList) {
+//        isLiked = likedList.any { it.movieId == movieId }
+//
+//    }
+//    LaunchedEffect(watchedList) {
+//        isWatch = watchedList.any { it.movieId == movieId }
+//
+//    }
+//    LaunchedEffect(ratedMovie) {
+//        val previousRating = ratedMovie.find { it.movieId == movieId }?.rating ?: 0
+//        rating1 = previousRating
+//    }
     GlideImage(
         model = "https://image.tmdb.org/t/p/w500/${posterPath}",
         contentDescription = title,
@@ -137,72 +138,9 @@ fun MovieDetails(
             Text("Manage Movie")
         }
 
-        if (showBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showBottomSheet = false
-                },
-                sheetState = sheetState
-            ) {
-                Column (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ){
-                    Row {
-                        Icon(
-                            painter =painterResource(if (isWatched) R.drawable.watchlist_added else R.drawable.watchlist_not),
-                            contentDescription = "watchlist Icon",
-                            modifier = Modifier
-                                .clickable {
-                                    isWatched = !isWatched
-                                    watchlistControl(movieId, posterPath)
-
-                                }
-                                .size(120.dp)
-                        )
-                        Icon(
-                            painter = painterResource(if (isLiked) R.drawable.heart else R.drawable.heart_empty),
-                            contentDescription = "Liked Icon",
-                            modifier = Modifier
-                                .clickable {
-                                    isLiked = !isLiked
-                                    likedListControl(movieId, posterPath)
-                                }
-                                .size(120.dp)
-                        )
-                        Icon(
-                            painter = painterResource(if (isWatch) R.drawable.watched else R.drawable.not_watched),
-                            contentDescription = "watched Icon",
-                            modifier = Modifier
-                                .clickable {
-                                    isWatch=!isWatch
-                                    watchedListControl(movieId, posterPath)
-                                }
-                                .size(120.dp)
-                        )
-
-                    }
-                    RatingBar(
-                        modifier = Modifier
-                            .size(50.dp),
-                        rating = rating1,
-                        onRatingChanged = {
-                            rating1 = it
-                        },
-                        movieId = movieId,
-                        starsColor = Color.Yellow,
-                        saveRating = {movieId,rating->
-                            ratedListControl(movieId,rating)
-                        }
-
-                    )
-                }
-
-            }
-        }
+//        if (showBottomSheet) {
+//
+//        }
 
     }
 }
