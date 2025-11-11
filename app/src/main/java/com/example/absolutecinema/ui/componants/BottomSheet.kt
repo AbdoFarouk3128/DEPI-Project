@@ -33,6 +33,7 @@ import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheet(
+    showBottomSheet:Boolean,
     movieId: String,
     posterPath: String,
     watchlistViewModel: WatchlistMoviesViewModel,
@@ -43,6 +44,7 @@ fun BottomSheet(
     likedListControl: (String, String) -> Unit,
     watchedListControl: (String, String) -> Unit,
     ratedListControl: (String, Int) -> Unit,
+    onDismiss: () -> Unit,
 ) {
     val watchlist by watchlistViewModel.watchlist.observeAsState(mutableListOf())
     val likedList by likedListViewModel.likedList.observeAsState(mutableListOf())
@@ -79,7 +81,8 @@ fun BottomSheet(
     }
     ModalBottomSheet(
         onDismissRequest = {
-            showBottomSheet = false
+            onDismiss()
+//            showBottomSheet = false
         },
         sheetState = sheetState
     ) {
