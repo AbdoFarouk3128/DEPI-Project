@@ -297,7 +297,6 @@ fun ManageMovieSheet(
     gotoLikedList: () -> Unit,
     onDismiss: () -> Unit
 ) {
-
     val watchlist by watchlistViewModel.watchlist.observeAsState(emptyList())
     val likedList by likedListViewModel.likedList.observeAsState(emptyList())
 
@@ -330,7 +329,7 @@ fun ManageMovieSheet(
                             movieDetails?.let { watchlistControl(it.id, it.posterPath ?: "") }
                         }
                         .size(120.dp)
-                        .padding(8.dp) // Added padding to prevent icons from touching
+                        .padding(8.dp)
                 )
                 // Icon 2: Like
                 Icon(
@@ -341,7 +340,7 @@ fun ManageMovieSheet(
                             movieDetails?.let { likedListControl(it.id, it.posterPath ?: "") }
                         }
                         .size(120.dp)
-                        .padding(8.dp) // Added padding to prevent icons from touching
+                        .padding(8.dp)
                 )
                 // Icon 3: Watched
                 Icon(
@@ -353,27 +352,29 @@ fun ManageMovieSheet(
                             // TODO: Add your logic here to call a ViewModel for the watched status
                         }
                         .size(120.dp)
-                        .padding(8.dp) // Added padding to prevent icons from touching
+                        .padding(8.dp)
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            RatingBar(
-                modifier = Modifier.height(50.dp), // Use height for better control
-                rating = rating1,
-                onRatingChanged = {
-                    rating1 = it
-                },
-                stars = 5, // Added stars parameter
-                starsColor = Color.Yellow,
-                onDoubleTap = {
-                    // Decrease rating by one, but don't go below 0
-                    if (rating1 > 0) {
-                        rating1--
+            // Fixed RatingBar with proper parameters
+            movieDetails?.let { movie ->
+                RatingBar(
+                    modifier = Modifier.height(50.dp),
+                    rating = rating1,
+                    onRatingChanged = {
+                        rating1 = it
+                    },
+                    stars = 5,
+                    starsColor = Color.Yellow,
+                    movieId = movie.id,  // ✅ Fixed: Pass the actual movie ID
+                    saveRating = { movieId, rating ->  // ✅ Fixed: Lambda to save rating
+                        // Add your logic to save the rating to database/ViewModel
+                        // For example: ratingViewModel.saveRating(movieId, rating)
                     }
-                }
-            )
+                )
+            }
         }
     }
 }
