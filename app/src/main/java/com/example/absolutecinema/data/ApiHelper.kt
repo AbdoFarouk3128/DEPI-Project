@@ -72,7 +72,18 @@ fun getMovieDetails(movieId: String, onResult: (MovieDetails?) -> Unit) {
                         movieCallable.getCredits(movieId).enqueue(object: Callback<Credits> {
                             override fun onResponse(call: Call<Credits>, response: Response<Credits>) {
                                 movieDetails.credits = response.body()
-                                onResult(movieDetails) // Return the complete object
+
+                                // ✅ NOW GET VIDEOS/TRAILERS
+                                movieCallable.getVideos(movieId).enqueue(object: Callback<VideosResponse> {
+                                    override fun onResponse(call: Call<VideosResponse>, response: Response<VideosResponse>) {
+                                        movieDetails.videos = response.body()
+                                        onResult(movieDetails) // Return complete data with videos
+                                    }
+
+                                    override fun onFailure(call: Call<VideosResponse>, t: Throwable) {
+                                        onResult(movieDetails) // Still return data even if videos fail
+                                    }
+                                })
                             }
 
                             override fun onFailure(call: Call<Credits>, t: Throwable) {

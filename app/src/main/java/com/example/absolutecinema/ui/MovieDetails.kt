@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.view.Window
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -129,6 +130,14 @@ fun MovieDetails(
                     lineHeight = 20.sp
                 )
                 Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // ✅ Trailer Section (NEW!)
+            if (details.videos?.results?.isNotEmpty() == true) {
+                item {
+                    TrailerSection(details.videos)
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
             }
 
             // Modern Manage Movie Section
@@ -451,4 +460,94 @@ fun RecommendedMovieItem(movie: MoviesRelated, onMovieClick: (Deliverables) -> U
                 onMovieClick(Deliverables(movieId = movie.id, poster = movie.poster ?: "", title = movie.title))
             }
     )
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun TrailerSection(videos: VideosResponse?) {
+    // Get the official trailer or first trailer
+    val trailer = videos?.results?.firstOrNull { it.type == "Trailer" && it.site == "YouTube" && it.official }
+        ?: videos?.results?.firstOrNull { it.type == "Trailer" && it.site == "YouTube" }
+
+    val context = LocalContext.current
+
+    trailer?.let {
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            Text("Trailer", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // YouTube Trailer Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clickable {
+                        // Open YouTube video
+                        val youtubeIntent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.youtube.com/watch?v=${trailer.key}")
+                        )
+                        context.startActivity(youtubeIntent)
+                    },
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    // YouTube Thumbnail
+                    GlideImage(
+                        model = "https://img.youtube.com/vi/${trailer.key}/maxresdefault.jpg",
+                        contentDescription = "Trailer Thumbnail",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    // Dark overlay
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.3f))
+                    )
+
+                    // Play button
+                    Icon(
+                        painter = painterResource(R.drawable.ic_play_circle), // You'll need this icon
+                        contentDescription = "Play Trailer",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(80.dp)
+                            .align(Alignment.Center)
+                    )
+
+                    // YouTube logo in corner
+                    Image(
+                        painter = painterResource(R.drawable.youtube_logo), // You'll need this
+                        contentDescription = "YouTube",
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(12.dp)
+                            .width(60.dp)
+                    )
+
+                    // Trailer title
+                    Text(
+                        text = trailer.name,
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(12.dp)
+                            .fillMaxWidth(0.7f),
+                        style = androidx.compose.ui.text.TextStyle(
+                            shadow = androidx.compose.ui.graphics.Shadow(
+                                color = Color.Black,
+                                offset = androidx.compose.ui.geometry.Offset(2f, 2f),
+                                blurRadius = 4f
+                            )
+                        )
+                    )
+                }
+            }
+        }
+    }
 }
