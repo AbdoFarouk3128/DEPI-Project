@@ -19,3 +19,12 @@ data class Results(
 //    @SerializedName("vote_average")
 //    val rating:String,
 )
+data class Trailer(
+    val results: ArrayList<Links>
+)
+
+
+data class Links(
+    @SerializedName("key")
+    val key: String
+)

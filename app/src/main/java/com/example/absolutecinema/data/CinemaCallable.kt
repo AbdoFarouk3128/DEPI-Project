@@ -25,4 +25,6 @@ interface CinemaCallable {
         @Query("language") language: String = "en-US",
         @Query("page") page: Int = 1
     ): Call<Cinema>
+    @GET("movie/{id}/videos?api_key=d997190299b8c60ad08ef02b0dc4c804")
+    fun getVid(@Path("id") id:String):Call<Trailer>
 }
