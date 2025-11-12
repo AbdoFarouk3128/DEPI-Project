@@ -1,61 +1,70 @@
 # 🎬 Absolute Cinema App (Jetpack Compose)
 
 ## 📌 Project Name  
-Movie Discovery App with Jetpack Compose  
+Absolute Cinema  
 
 ## 👥 Team Members  
-- **Abdelrahman Ahmed Farouk (Team Leader)** → (Navigation + Detail Screen + Unit Testing)  
-- **Abdel Rahman Ahmed Abdel Latif** → (API Integration + Dynamic Display)  
-- **Salah Magdy Ahmed** → (Project Setup + UI Design)  
-- **Kyrollos Farid** → (Search + Security + Final Polish)  
+- **Abdelrahman Ahmed Farouk (Team Leader)**  
+- **Abdel Rahman Ahmed Abdel Latif**  
+- **Salah Magdy Ahmed** 
+- **Kyrollos Farid**  
 
 ## 💡 Project Idea  
-The Movie Discovery App is a modern, native Android application built entirely with **Kotlin** and **Jetpack Compose**.  
+The Absolute Cinema App is a modern, native Android application built entirely with **Kotlin** and **Jetpack Compose**.  
 The app allows users to **browse, discover, and search for movies** by fetching real-time data from a public API (TMDB).  
 It emphasizes **modern Android development practices** such as declarative UI, clean architecture, security, and unit testing.  
 
-## 🛠️ Technologies to Use  
+## 🛠️ Technologies Used
 - **Kotlin** (primary language)  
 - **Jetpack Compose** (UI toolkit)  
 - **Android MDC** (Material Design principles)  
 - **Retrofit** (networking)  
-- **Git & GitHub** (version control)  
-- **Unit Testing**  
+- **Git & GitHub** (version control)   
 - **UI/UX Design**  
 - **Security Best Practices**  
 
-## 🗓️ Project Plan  
 
-### Week 1 → Salah Magdy Ahmed  
-- Initialize Android project in Android Studio (Kotlin + Jetpack Compose).  
-- Set up GitHub repository.  
-- Design wireframes for main screens (movie grid + detail view).  
-- Build static home screen UI with Jetpack Compose.  
+## 🚀 Quick Start
 
----
+### 🧩 Prerequisites
+Before you begin, make sure you have the following installed and ready:
 
-### Week 2 → Abdel Rahman Ahmed Abdel Latif  
-- Integrate Retrofit for API calls.  
-- Fetch popular movies and create data classes for JSON responses.  
-- Display movies dynamically in a lazy grid with posters.  
+- **Android Studio Otter** (or newer)
+- **Android 10+** (API level 26 or higher)
+- A **TMDB API Key** — get one from [The Movie Database (TMDB)](https://www.themoviedb.org/settings/api)
 
----
+### ⚙️ Installation
 
-### Week 3 → Abdelrahman Ahmed Farouk (Leader)  
-- Implement navigation with Jetpack Navigation.  
-- Build movie detail screen (title, synopsis, rating, release date).  
-- Pass data from movie grid to detail screen.  
-- Write unit tests for business logic.  
+#### 1. Clone the Repository
+Clone the project using **Git**:
 
----
+```bash
+git clone https://github.com/AbdoFarouk3128/DEPI-Project.git
+```
 
-### Week 4 → Kyrollos Farid  
-- Add search bar to filter movies by title.  
-- Store API key securely (gradle.properties).  
-- Write project documentation (README).  
-- Refine UI/UX (animations, loaders, error states).  
+#### 2. Open the project in Android Studio.
 
----
+#### 3. Add Your TMDB API Key
+
+Navigate to:
+```bash
+data/api/CinemaCallable.kt
+```
+
+Locate the API_KEY variable and replace it with your TMDB key:
+```bash
+const val API_KEY = "your_api_key_here"
+```
+#### 4. Sync the Gradle files.
+In Android Studio, go to
+File → Sync Project with Gradle Files
+
+#### 5. Run the app on your emulator or device.
+Choose your emulator or physical device, then click Run ▶️.
+
+## 🎨 Design
+The design for this app is highly influenced from Letterboxd app
+You can find that app [here](https://play.google.com/store/apps/details?id=com.letterboxd.letterboxd&hl=en&pli=1)
 
 ## 📎 Project Drive Link  
 [Click here to access project files](https://drive.google.com/drive/folders/1oIn39CgFFAwPu63NSKCKSQ2pffnXIWOW?usp=sharing)
