@@ -106,3 +106,22 @@ fun getMovieDetails(movieId: String, onResult: (MovieDetails?) -> Unit) {
         }
     })
 }
+
+fun searchForMovie(query: String, onResult: (List<Results>) -> Unit) {
+    val retrofit = Retrofit.Builder()
+        .baseUrl("https://api.themoviedb.org/3/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    val c = retrofit.create(CinemaCallable::class.java)
+    c.searchForMovieByTitle(query).enqueue(object : Callback<Cinema> {
+        override fun onResponse(call: Call<Cinema>, response: Response<Cinema>) {
+            val results = response.body()?.results ?: emptyList()
+            onResult(results)
+        }
+
+        override fun onFailure(call: Call<Cinema>, t: Throwable) {
+            onResult(emptyList())
+        }
+    })
+}

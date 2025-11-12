@@ -28,4 +28,19 @@ interface CinemaCallable {
     ): Call<Cinema>
     @GET("movie/{id}/videos?api_key=d997190299b8c60ad08ef02b0dc4c804")
     fun getVid(@Path("id") id:String):Call<Trailer>
+
+    @GET("search/movie")
+    fun searchForMovieByTitle(
+        @Query("query") text: String,
+        @Query("api_key") key : String = API_KEY
+    ):
+            Call<Cinema>
+
+    @GET("discover/movie")
+    fun discoverMovie(
+        @Query("with_genres") genreId: String = "",
+        @Query("year") year: Int? = null,
+        @Query("api_key") key : String = API_KEY
+    ):
+            Call<Cinema>
 }
