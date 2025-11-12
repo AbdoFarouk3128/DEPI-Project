@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,9 +61,11 @@ fun BottomSheet(
     var isWatch by remember { mutableStateOf(initialWatch) }
 
     val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(false) }
+//    var showBottomSheet by remember { mutableStateOf(false) }
 
-    var rating1 by remember { mutableIntStateOf(0) }
+    val currentRating by ratedMovieViewModel.currentRating.observeAsState(-1)
+    LaunchedEffect(movieId) { ratedMovieViewModel.fetchMovieRating(movieId) }
+
     LaunchedEffect(watchlist) {
         isWatched = watchlist.any { it.movieId == movieId }
 
@@ -74,10 +78,10 @@ fun BottomSheet(
         isWatch = watchedList.any { it.movieId == movieId }
 
     }
-    LaunchedEffect(ratedMovie) {
-        val previousRating = ratedMovie.find { it.movieId == movieId }?.rating ?: 0
-        rating1 = previousRating
-    }
+//    LaunchedEffect(ratedMovie) {
+//        val previousRating = ratedMovie.find { it.movieId == movieId }?.rating ?: 0
+//        rating1 = previousRating
+//    }
     ModalBottomSheet(
         onDismissRequest = {
             onDismiss()
@@ -126,20 +130,28 @@ fun BottomSheet(
                 )
 
             }
-            RatingBar(
-                modifier = Modifier
-                    .size(50.dp),
-                rating = rating1,
-                onRatingChanged = {
-                    rating1 = it
-                },
-                movieId = movieId,
-                starsColor = Color.Yellow,
-                saveRating = { movieId, rating ->
-                    ratedListControl(movieId, rating)
-                }
-
-            )
+            if (currentRating >= 0) {
+                RatingBar(
+                    modifier = Modifier.size(50.dp),
+                    rating = currentRating,
+                    onRatingChanged = { newRating ->
+                        ratedMovieViewModel.updateCurrentMovieRating(newRating)
+                        ratedMovieViewModel.ratedMoviesControl(movieId, newRating)
+                    },
+                    movieId = movieId,
+                    starsColor = Color.Yellow,
+                    saveRating = { id, newRating ->
+                        ratedListControl(id, newRating)
+                    }
+                )
+            } else {
+                // 🔄 Show loading until rating retrieved
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(40.dp)
+                )
+            }
         }
 
     }

@@ -24,16 +24,10 @@ import com.google.firebase.auth.auth
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        auth = Firebase.auth
-        val startDestination = if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) {
-            "home"
-        } else {
-            "login"
-        }
+
         setContent {
             AbsoluteCinemaTheme {
                 val navController = rememberNavController()

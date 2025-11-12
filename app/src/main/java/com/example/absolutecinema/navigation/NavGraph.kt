@@ -19,8 +19,12 @@ import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
 import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.gson.Gson
 import java.net.URLDecoder
+private lateinit var auth: FirebaseAuth
 
 @Composable
 fun NavGraph(
@@ -31,9 +35,15 @@ fun NavGraph(
     ratedMovieViewModel: RatedMovieViewModel,
     firebaseViewModel: FirebaseViewModel
 ) {
+    auth = Firebase.auth
+    val startDestination = if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) {
+        Screen.Movies.route
+    } else {
+        Screen.Login.route
+    }
     NavHost(
         navController = navController,
-        startDestination = Screen.SignUP.route
+        startDestination = startDestination,
     ) {
         //from here
         composable(route = Screen.Movies.route) {

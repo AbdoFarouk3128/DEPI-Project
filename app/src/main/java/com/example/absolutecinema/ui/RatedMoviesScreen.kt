@@ -47,6 +47,9 @@ fun RatedScreen(
     var movies by remember { mutableStateOf<List<Results>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
+    LaunchedEffect(Unit) {
+        viewModel.fetchRatedMovies()
+    }
     LaunchedEffect(watchedList) {
         if (watchedList.isNotEmpty()) {
             val watchlistMovies = mutableListOf<Results>()
