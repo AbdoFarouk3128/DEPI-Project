@@ -41,10 +41,10 @@ fun RatingBar(
                         // fill up to the clicked one
                         index
                     }
-
                     onRatingChanged(newRating)
                     saveRating(movieId, newRating)
                 }
+
             )
         }
     }

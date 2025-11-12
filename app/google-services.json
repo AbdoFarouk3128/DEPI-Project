@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "991967267105",
+    "firebase_url": "https://movie-discovery-app-1fc65-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "movie-discovery-app-1fc65",
     "storage_bucket": "movie-discovery-app-1fc65.firebasestorage.app"
   },

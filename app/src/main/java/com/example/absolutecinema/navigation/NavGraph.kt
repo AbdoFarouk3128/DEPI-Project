@@ -6,13 +6,15 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.absolutecinema.ui.ExploreScreen
+import com.example.absolutecinema.ui.HomeScreen
 import com.example.absolutecinema.ui.LikedListScreen
 import com.example.absolutecinema.ui.ListsScreen
 import com.example.absolutecinema.ui.Login
 import com.example.absolutecinema.ui.MovieDetails
-import com.example.absolutecinema.ui.MovieScreen
 import com.example.absolutecinema.ui.RatedScreen
 import com.example.absolutecinema.ui.SignUP
+import com.example.absolutecinema.ui.TopicScreen
 import com.example.absolutecinema.ui.WatchedScreen
 import com.example.absolutecinema.ui.WatchlistScreen
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
@@ -25,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.gson.Gson
 import java.net.URLDecoder
+
 private lateinit var auth: FirebaseAuth
 
 @Composable
@@ -38,14 +41,20 @@ fun NavGraph(
 ) {
     auth = Firebase.auth
     val startDestination = if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) {
-        Screen.Movies.route
+        Screen.Home.route
     } else {
         Screen.Login.route
     }
     NavHost(
         navController = navController,
         startDestination = startDestination,
-    ) {
+    ) { composable(Screen.Home.route) {
+        HomeScreen (
+            onMovieClick = { deliverable ->
+                navController.navigate(Screen.Details.createRoute(deliverable))
+            }
+        )
+    }
         //lists screen
         composable(route = Screen.Lists.route) {
             ListsScreen(
@@ -66,11 +75,17 @@ fun NavGraph(
                 }
             )
         }        //from here
-        composable(route = Screen.Movies.route) {
-            MovieScreen(
+        composable(route = Screen.Topic.route,
+            arguments = listOf(navArgument("index") { type = NavType.IntType })
+        ) { backStackEntry ->
+            TopicScreen(
                 onMovieClick = { deliverables ->
                     navController.navigate(Screen.Details.createRoute(deliverables))
                 },
+                index = backStackEntry.arguments?.getInt("index")?:0,
+                goBack = {
+                    navController.popBackStack()
+                }
             )
         }
         //to here
@@ -182,13 +197,26 @@ fun NavGraph(
                     navController.navigate(Screen.SignUP.route)
                 },
                 goToApp = {
-                    navController.navigate(Screen.Movies.route) {
+                    navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 }
             )
         }
+        composable(route = Screen.Explore.route) {
+           ExploreScreen(
+               onMovieClick =  { deliverables ->
+                   navController.navigate(Screen.Details.createRoute(deliverables))
+               },
+               goToMovies = {index->
+                   navController.navigate(Screen.Topic.createRoute(index))
+
+               }
+           )
+        }
 //        composable(route = Screen.Home.route) { Home(navController, auth) }
 
     }
 }
+
+

@@ -18,9 +18,9 @@ import com.example.absolutecinema.navigation.Screen
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     val items = listOf(
-        Triple(Screen.Movies, Icons.Default.Home, "Movies"),
+        Triple(Screen.Home, Icons.Default.Home, "Movies"),
         Triple(Screen.Lists, Icons.Default.List, "Lists"), // ✅ NEW middle item
-        Triple(Screen.LikedList, Icons.Default.Favorite, "Liked")
+        Triple(Screen.Explore, Icons.Default.Favorite, "Explore")
     )
 
     NavigationBar {

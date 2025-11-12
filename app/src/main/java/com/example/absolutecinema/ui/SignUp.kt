@@ -250,7 +250,7 @@ fun SignUP(
 
             Button(
                 onClick = {
-                    viewModel.signUp(email,password,confirmPassword,context,goToApp)
+                    viewModel.signUp(firstname,secondName,email,password,confirmPassword,context,goToApp)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = red),
                 shape = RoundedCornerShape(12.dp),

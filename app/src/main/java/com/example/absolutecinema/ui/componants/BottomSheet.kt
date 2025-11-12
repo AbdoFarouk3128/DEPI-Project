@@ -50,7 +50,7 @@ fun BottomSheet(
     val watchlist by watchlistViewModel.watchlist.observeAsState(mutableListOf())
     val likedList by likedListViewModel.likedList.observeAsState(mutableListOf())
     val watchedList by watchedMoviesViewModel.watchedList.observeAsState(mutableListOf())
-    val ratedMovie by ratedMovieViewModel.ratedMovies.observeAsState(mutableListOf())
+//    val ratedMovie by ratedMovieViewModel.ratedMovies.observeAsState(mutableListOf())
 
     val initialWatched = watchlist.any { it.movieId == movieId }
     val initialLiked = likedList.any { it.movieId == movieId }
@@ -130,28 +130,20 @@ fun BottomSheet(
                 )
 
             }
-            if (currentRating >= 0) {
-                RatingBar(
-                    modifier = Modifier.size(50.dp),
-                    rating = currentRating,
-                    onRatingChanged = { newRating ->
-                        ratedMovieViewModel.updateCurrentMovieRating(newRating)
-                        ratedMovieViewModel.ratedMoviesControl(movieId, newRating)
-                    },
-                    movieId = movieId,
-                    starsColor = Color.Yellow,
-                    saveRating = { id, newRating ->
-                        ratedListControl(id, newRating)
-                    }
-                )
-            } else {
-                // 🔄 Show loading until rating retrieved
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .size(40.dp)
-                )
-            }
+            // Remove the if/else loading logic since we now default to 0
+            RatingBar(
+                modifier = Modifier.size(50.dp),
+                rating = currentRating,
+                onRatingChanged = { newRating ->
+                    ratedMovieViewModel.updateCurrentMovieRating(newRating)
+                    ratedMovieViewModel.ratedMoviesControl(movieId, newRating)
+                },
+                movieId = movieId,
+                starsColor = Color.Yellow,
+                saveRating = { id, newRating ->
+                    ratedListControl(id, newRating)
+                }
+            )
         }
 
     }

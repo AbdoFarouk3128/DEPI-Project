@@ -26,6 +26,28 @@ interface CinemaCallable {
         @Query("language") language: String = "en-US",
         @Query("page") page: Int = 1
     ): Call<Cinema>
+
+    @GET("movie/now_playing")
+    fun getNowPlaying(
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("language") language: String = "en-US",
+        @Query("page") page: Int = 1
+    ): Call<Cinema>
+
+    @GET("movie/top_rated")
+    fun getTopRated(
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("language") language: String = "en-US",
+        @Query("page") page: Int = 1
+    ): Call<Cinema>
+
+    @GET("movie/upcoming")
+    fun getUpcoming(
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("language") language: String = "en-US",
+        @Query("page") page: Int = 1
+    ): Call<Cinema>
+
     @GET("movie/{id}/videos?api_key=d997190299b8c60ad08ef02b0dc4c804")
     fun getVid(@Path("id") id:String):Call<Trailer>
 

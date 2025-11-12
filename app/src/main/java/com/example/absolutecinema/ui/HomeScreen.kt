@@ -18,13 +18,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.absolutecinema.data.api.getMovies
+import com.example.absolutecinema.data.api.getPopularMovies
 import com.example.absolutecinema.data.api.searchForMovie
 import com.example.absolutecinema.navigation.Deliverables
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun MovieScreen(
+fun HomeScreen(
     onMovieClick: (Deliverables) -> Unit,
 ) {
     var movies by remember { mutableStateOf<List<Results>>(emptyList()) }
@@ -32,7 +32,7 @@ fun MovieScreen(
     var searchQuery by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        getMovies { result ->
+        getPopularMovies  { result ->
             movies = result
             isLoading = false
         }
@@ -49,7 +49,7 @@ fun MovieScreen(
         } else {
             // Reload movies if search is empty
             isLoading = true
-            getMovies { result ->
+            getPopularMovies  { result ->
                 movies = result
                 isLoading = false
             }

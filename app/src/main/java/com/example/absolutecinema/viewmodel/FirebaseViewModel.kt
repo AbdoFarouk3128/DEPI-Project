@@ -11,6 +11,8 @@ class FirebaseViewModel : ViewModel() {
     var isLoading = mutableStateOf(false)
 
     fun signUp(
+        firstName:String,
+        secondName:String,
         email: String,
         password: String,
         confirmPassword: String,

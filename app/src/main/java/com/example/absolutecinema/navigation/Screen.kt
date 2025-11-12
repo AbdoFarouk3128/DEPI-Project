@@ -1,11 +1,16 @@
 package com.example.absolutecinema.navigation
 
+import Results
 import java.net.URLEncoder
 
 sealed class Screen(val route: String) {
 
-
-    object Movies : Screen("movies")
+    object Home : Screen("moviesHome")
+    object Topic : Screen("movies/{index}"){
+        fun createRoute(index:Int): String {
+            return "movies/$index"
+        }
+    }
 
     object Details : Screen("details/{deliverables}") {
         fun createRoute(deliverables: Deliverables): String {
@@ -20,7 +25,7 @@ sealed class Screen(val route: String) {
             val gson = com.google.gson.Gson()
             val json = gson.toJson(deliverables)
             val encoded = URLEncoder.encode(json, "UTF-8")
-            return "watched/$encoded"
+            return "watchlist/$encoded"
         }
     }
     object LikedList : Screen("likedList/{deliverables}"){
@@ -28,7 +33,7 @@ sealed class Screen(val route: String) {
             val gson = com.google.gson.Gson()
             val json = gson.toJson(deliverables)
             val encoded = URLEncoder.encode(json, "UTF-8")
-            return "watched/$encoded"
+            return "likedList/$encoded"
         }
     }
     object Watched:Screen("watched/{deliverables}"){
@@ -44,13 +49,14 @@ sealed class Screen(val route: String) {
             val gson = com.google.gson.Gson()
             val json = gson.toJson(deliverables)
             val encoded = URLEncoder.encode(json, "UTF-8")
-            return "watched/$encoded"
+            return "rated/$encoded"
         }
     }
     object SignUP : Screen("signup")
     object Login : Screen("login")
 //    object Home : Screen("home")
     object Lists : Screen("lists")
+    object Explore : Screen("explore")
 }
 data class Deliverables(
     val movieId: String,
