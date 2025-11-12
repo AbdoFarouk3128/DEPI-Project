@@ -41,7 +41,7 @@ fun NavGraph(
 ) {
     auth = Firebase.auth
     val startDestination = if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) {
-        Screen.Home.route
+        Screen.Explore.route
     } else {
         Screen.Login.route
     }
@@ -197,7 +197,7 @@ fun NavGraph(
                     navController.navigate(Screen.SignUP.route)
                 },
                 goToApp = {
-                    navController.navigate(Screen.Home.route) {
+                    navController.navigate(Screen.Explore.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 }
@@ -210,8 +210,8 @@ fun NavGraph(
                },
                goToMovies = {index->
                    navController.navigate(Screen.Topic.createRoute(index))
-
-               }
+               },
+               firebaseViewModel = firebaseViewModel
            )
         }
 //        composable(route = Screen.Home.route) { Home(navController, auth) }

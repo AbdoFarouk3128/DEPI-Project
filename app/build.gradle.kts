@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.firebase.auth)
     //navigation
     implementation("androidx.navigation:navigation-compose:2.8.3")
+    implementation("com.google.android.gms:play-services-base:18.5.0")
 
 
 }

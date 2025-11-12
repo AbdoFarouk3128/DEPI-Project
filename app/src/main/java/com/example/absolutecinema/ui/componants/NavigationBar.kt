@@ -4,6 +4,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -18,9 +21,10 @@ import com.example.absolutecinema.navigation.Screen
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     val items = listOf(
-        Triple(Screen.Home, Icons.Default.Home, "Movies"),
-        Triple(Screen.Lists, Icons.Default.List, "Lists"), // ✅ NEW middle item
-        Triple(Screen.Explore, Icons.Default.Favorite, "Explore")
+        Triple(Screen.Explore, Icons.Default.LocalFireDepartment, "explore"),
+        Triple(Screen.Home, Icons.Default.Search, "Search"),
+        Triple(Screen.Lists, Icons.Default.List, "Lists"),
+        Triple(Screen.Explore, Icons.Default.Person, "Profile")
     )
 
     NavigationBar {

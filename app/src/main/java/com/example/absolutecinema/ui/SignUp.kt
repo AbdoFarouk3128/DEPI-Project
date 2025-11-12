@@ -218,7 +218,7 @@ fun SignUP(
                 onValueChange = { confirmPassword = it },
                 singleLine = true,
                 label = { Text(text = "Confirm password") },
-                visualTransformation = if (passwordVisible)
+                visualTransformation = if (confirmPasswordVisible)
                     VisualTransformation.None
                 else
                     PasswordVisualTransformation(),

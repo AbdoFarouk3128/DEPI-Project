@@ -93,10 +93,6 @@ fun MovieDetails(
             likedListViewModel = likedListViewModel,
             watchedMoviesViewModel = watchedMoviesViewModel,
             ratedMovieViewModel = ratedMovieViewModel,
-            watchlistControl = watchlistControl,
-            likedListControl = likedListControl,
-            watchedListControl = watchedListControl,
-            ratedListControl = ratedListControl,
             onDismiss = { showBottomSheet = false }
         )
     }

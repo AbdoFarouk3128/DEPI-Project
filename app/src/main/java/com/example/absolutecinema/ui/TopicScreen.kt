@@ -102,9 +102,15 @@ fun TopicScreen(
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Go Back",
-                    modifier = Modifier.clickable {
+                    modifier = Modifier.padding(12.dp)
+                        .size(28.dp)
+                        .clickable {
                         goBack()
                     }
+
+
+
+
                 )
                 Text(
                     topicName,

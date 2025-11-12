@@ -25,6 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,11 +40,13 @@ import com.example.absolutecinema.data.api.getPopularMovies
 import com.example.absolutecinema.data.api.getTopRatedMovies
 import com.example.absolutecinema.data.api.getUpcomingMovies
 import com.example.absolutecinema.navigation.Deliverables
+import com.example.absolutecinema.viewmodel.FirebaseViewModel
 
 @Composable
 fun ExploreScreen(
     onMovieClick: (Deliverables) -> Unit,
     goToMovies: (Int) -> Unit,
+    firebaseViewModel: FirebaseViewModel,
 ) {
 
     var topRatedMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
@@ -51,8 +54,12 @@ fun ExploreScreen(
     var popularMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
     var nowPlayingMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
 
+    val firstName by firebaseViewModel.firstName.observeAsState("")
 
     LaunchedEffect(Unit) {
+
+        firebaseViewModel.fetchUserFirstName()
+
         getPopularMovies { popularMovies = it }
         getNowPlayingMovies { nowPlayingMovies = it }
         getUpcomingMovies { upcomingMovies = it }
@@ -79,7 +86,15 @@ fun ExploreScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            Text("Welcome , ")
+            // ✅ Display firstName from observed LiveData
+            Text(
+                text = if (firstName.isNotEmpty()) "Welcome, $firstName" else "Welcome",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
             TopicList(
                 "Popular",
                 movies = popularMovies,
@@ -155,9 +170,6 @@ fun TopicList(
             items(movies) { movie ->
                 MovieCard(movie, onMovieClick)
             }
-
-
         }
     }
 }
-

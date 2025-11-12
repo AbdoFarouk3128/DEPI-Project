@@ -39,77 +39,114 @@ fun ListsScreen(
     watchedMoviesViewModel: WatchedMoviesViewModel,
     ratedMovieViewModel: RatedMovieViewModel,
     onMovieClick: (Deliverables) -> Unit,
-    onSeeAllClick: (String) -> Unit // "watchlist", "liked", "watched", "rated"
+    onSeeAllClick: (String) -> Unit
 ) {
+    // ✅ Observe data from ViewModels (auto-updates when Firebase changes)
     val watchlist by watchlistViewModel.watchlist.observeAsState(emptyList())
     val likedList by likedMoviesViewModel.likedList.observeAsState(emptyList())
     val watchedList by watchedMoviesViewModel.watchedList.observeAsState(emptyList())
     val ratedList by ratedMovieViewModel.ratedMovies.observeAsState(emptyList())
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
-            .padding(vertical = 16.dp)
-    ) {
-        // Header
-        Text(
-            text = "My Lists",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
+    var isLoading by remember { mutableStateOf(true) }
 
-        Spacer(modifier = Modifier.height(16.dp))
+    // ✅ Load data from Firebase ONCE and listen for real-time updates
+    LaunchedEffect(Unit) {
+        // Initial load
+        watchlistViewModel.loadWatchlist()
+        likedMoviesViewModel.loadLikedMovies()
+        watchedMoviesViewModel.loadWatchedMovies()
+        ratedMovieViewModel.fetchRatedMovies()
 
-        // Watchlist Section
-        MovieListSection(
-            title = "Watchlist",
-            movieIds = watchlist.map { it.movieId },
-            totalCount = watchlist.size,
-            color = Color(0xFF6200EA),
-            onMovieClick = onMovieClick,
-            onSeeAllClick = { onSeeAllClick("watchlist") }
-        )
+        // Set up real-time listeners for automatic updates
+        watchlistViewModel.listenToWatchlistChanges()
 
-        Spacer(modifier = Modifier.height(24.dp))
+        // Give it 2 seconds for initial load
+        kotlinx.coroutines.delay(2000)
+        isLoading = false
+    }
 
-        // Liked Section
-        MovieListSection(
-            title = "Liked",
-            movieIds = likedList.map { it.movieId },
-            totalCount = likedList.size,
-            color = Color(0xFFE91E63),
-            onMovieClick = onMovieClick,
-            onSeeAllClick = { onSeeAllClick("liked") }
-        )
+    if (isLoading) {
+        // ✅ Loading state
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator()
 
-        Spacer(modifier = Modifier.height(24.dp))
+            }
+        }
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState())
+                .padding(vertical = 16.dp)
+        ) {
+            // Header
+            Text(
+                text = "My Lists",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
 
-        // Watched Section
-        MovieListSection(
-            title = "Watched",
-            movieIds = watchedList.map { it.movieId },
-            totalCount = watchedList.size,
-            color = Color(0xFF00BCD4),
-            onMovieClick = onMovieClick,
-            onSeeAllClick = { onSeeAllClick("watched") }
-        )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(24.dp))
+            // Watchlist Section
+            MovieListSection(
+                title = "Watchlist",
+                movieIds = watchlist.map { it.movieId },
+                totalCount = watchlist.size,
+                color = Color(0xFF6200EA),
+                onMovieClick = onMovieClick,
+                onSeeAllClick = { onSeeAllClick("watchlist") }
+            )
 
-        // Rated Section
-        MovieListSection(
-            title = "Rated",
-            movieIds = ratedList.map { it.movieId },
-            totalCount = ratedList.size,
-            color = Color(0xFFFF9800),
-            onMovieClick = onMovieClick,
-            onSeeAllClick = { onSeeAllClick("rated") }
-        )
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            // Liked Section
+            MovieListSection(
+                title = "Liked",
+                movieIds = likedList.map { it.movieId },
+                totalCount = likedList.size,
+                color = Color(0xFFE91E63),
+                onMovieClick = onMovieClick,
+                onSeeAllClick = { onSeeAllClick("liked") }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Watched Section
+            MovieListSection(
+                title = "Watched",
+                movieIds = watchedList.map { it.movieId },
+                totalCount = watchedList.size,
+                color = Color(0xFF00BCD4),
+                onMovieClick = onMovieClick,
+                onSeeAllClick = { onSeeAllClick("watched") }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Rated Section
+            MovieListSection(
+                title = "Rated",
+                movieIds = ratedList.map { it.movieId },
+                totalCount = ratedList.size,
+                color = Color(0xFFFF9800),
+                onMovieClick = onMovieClick,
+                onSeeAllClick = { onSeeAllClick("rated") }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
 
@@ -123,19 +160,29 @@ fun MovieListSection(
     onSeeAllClick: () -> Unit
 ) {
     var movies by remember { mutableStateOf<List<Results>>(emptyList()) }
+    var isLoadingMovies by remember { mutableStateOf(false) }
 
-    // Fetch only first 5 movies
+    // ✅ Fetch only first 5 movies - triggers when movieIds changes
     LaunchedEffect(movieIds) {
         if (movieIds.isNotEmpty()) {
+            isLoadingMovies = true
             val fetchedMovies = mutableListOf<Results>()
+            var completedCount = 0
+
             movieIds.take(5).forEach { movieId ->
                 getDetails(movieId) { result ->
                     result?.let { fetchedMovies.add(it) }
-                    movies = fetchedMovies.toList()
+                    completedCount++
+
+                    if (completedCount == movieIds.take(5).size) {
+                        movies = fetchedMovies.toList()
+                        isLoadingMovies = false
+                    }
                 }
             }
         } else {
             movies = emptyList()
+            isLoadingMovies = false
         }
     }
 
@@ -192,7 +239,18 @@ fun MovieListSection(
         Spacer(modifier = Modifier.height(12.dp))
 
         // Movies Row
-        if (movies.isEmpty()) {
+        if (isLoadingMovies) {
+            // ✅ Loading state for individual sections
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .height(180.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(40.dp))
+            }
+        } else if (movies.isEmpty()) {
             EmptyListCard(title, color)
         } else {
             LazyRow(
