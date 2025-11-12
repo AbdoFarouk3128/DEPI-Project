@@ -50,6 +50,7 @@ sealed class Screen(val route: String) {
     object SignUP : Screen("signup")
     object Login : Screen("login")
 //    object Home : Screen("home")
+    object Lists : Screen("lists")
 }
 data class Deliverables(
     val movieId: String,

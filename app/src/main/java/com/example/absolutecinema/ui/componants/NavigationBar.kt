@@ -1,7 +1,9 @@
 package com.example.absolutecinema.ui.componants
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -16,16 +18,16 @@ import com.example.absolutecinema.navigation.Screen
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     val items = listOf(
-        Screen.Movies,
-        Screen.Watchlist,
-        Screen.LikedList
+        Triple(Screen.Movies, Icons.Default.Home, "Movies"),
+        Triple(Screen.Lists, Icons.Default.List, "Lists"), // ✅ NEW middle item
+        Triple(Screen.LikedList, Icons.Default.Favorite, "Liked")
     )
 
     NavigationBar {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
-        items.forEach { screen ->
+        items.forEach { (screen, icon, label) ->
             NavigationBarItem(
                 selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                 onClick = {
@@ -38,11 +40,11 @@ fun BottomNavigationBar(navController: NavHostController) {
                 },
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.Image,
-                        contentDescription = "screen.contentDescription"
+                        imageVector = icon,
+                        contentDescription = label
                     )
                 },
-                label = { Text("screen") }
+                label = { Text(label) }
             )
         }
     }

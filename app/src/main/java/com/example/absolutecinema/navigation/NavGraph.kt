@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.absolutecinema.ui.LikedListScreen
+import com.example.absolutecinema.ui.ListsScreen
 import com.example.absolutecinema.ui.Login
 import com.example.absolutecinema.ui.MovieDetails
 import com.example.absolutecinema.ui.MovieScreen
@@ -35,7 +36,26 @@ fun NavGraph(
         navController = navController,
         startDestination = Screen.SignUP.route
     ) {
-        //from here
+        //lists screen
+        composable(route = Screen.Lists.route) {
+            ListsScreen(
+                watchlistViewModel = watchlistViewModel,
+                likedMoviesViewModel = likedMoviesViewModel,
+                watchedMoviesViewModel = watchedListViewModel,
+                ratedMovieViewModel = ratedMovieViewModel,
+                onMovieClick = { deliverables ->
+                    navController.navigate(Screen.Details.createRoute(deliverables))
+                },
+                onSeeAllClick = { listType ->
+                    when (listType) {
+                        "watchlist" -> navController.navigate(Screen.Watchlist.route)
+                        "liked" -> navController.navigate(Screen.LikedList.route)
+                        "watched" -> navController.navigate(Screen.Watched.route)
+                        "rated" -> navController.navigate(Screen.Rated.route)
+                    }
+                }
+            )
+        }        //from here
         composable(route = Screen.Movies.route) {
             MovieScreen(
                 onMovieClick = { deliverables ->
