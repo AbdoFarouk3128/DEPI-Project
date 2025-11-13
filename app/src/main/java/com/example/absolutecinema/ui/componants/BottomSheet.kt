@@ -164,7 +164,7 @@ fun BottomSheet(
                         ratedMovieViewModel.ratedMoviesControl(movieId, newRating)
                     },
                     movieId = movieId,
-                    starsColor = Color.Yellow,
+                    starsColor = Color.Red,
                     saveRating = { id, newRating ->
                         ratedMovieViewModel.ratedMoviesControl(id, newRating)
                     }

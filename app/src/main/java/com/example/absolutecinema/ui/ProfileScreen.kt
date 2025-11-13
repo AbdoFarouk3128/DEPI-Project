@@ -264,7 +264,7 @@ fun ProfileScreen(
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFE53935)
+                    containerColor = Color.Red
                 )
             ) {
                 Icon(

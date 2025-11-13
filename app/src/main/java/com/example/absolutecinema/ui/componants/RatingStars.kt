@@ -20,7 +20,7 @@ fun RatingBar(
     stars: Int = 5,
     movieId: String,
     onRatingChanged: (Int) -> Unit,
-    starsColor: Color = Color.Yellow,
+    starsColor: Color = Color.Red,
     saveRating: (String, Int) -> Unit,
 ) {
     Row {

@@ -5,14 +5,19 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Person2
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -38,7 +43,10 @@ fun BottomNavigationBar(
         NavigationItem(Screen.Profile, Icons.Default.Person, "Profile", requiresAuth = true)
     )
 
-    NavigationBar {
+    NavigationBar(
+        containerColor = Color.Red,
+    ) {
+
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
@@ -62,10 +70,18 @@ fun BottomNavigationBar(
                 icon = {
                     Icon(
                         imageVector = item.icon,
-                        contentDescription = item.label
+                        contentDescription = item.label,
                     )
                 },
-                label = { Text(item.label) }
+                label = { Text(item.label, fontWeight = FontWeight.Bold)},
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.Red,
+                    unselectedIconColor = Color.White,
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = Color.White,
+                    indicatorColor = Color.White // Color of the selected item indicator
+                )
+
             )
         }
     }

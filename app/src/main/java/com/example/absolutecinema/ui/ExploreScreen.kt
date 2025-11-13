@@ -1,7 +1,10 @@
 package com.example.absolutecinema.ui
 
 import Results
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,9 +35,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.absolutecinema.R
 import com.example.absolutecinema.data.api.getNowPlayingMovies
 import com.example.absolutecinema.data.api.getPopularMovies
 import com.example.absolutecinema.data.api.getTopRatedMovies
@@ -87,15 +92,27 @@ fun ExploreScreen(
                 .padding(16.dp)
         ) {
             // ✅ Display firstName from observed LiveData
-            Text(
-                text = if (firstName.isNotEmpty()) "Welcome, $firstName" else "Welcome",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+
+            ) {
+                Text(
+                    text = if (firstName.isNotEmpty()) "Welcome, $firstName" else "Welcome",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                Image(
+                    painterResource(R.drawable.pocorn),
+                    contentDescription = "Popcorn",
+                    modifier = Modifier.size(35.dp)
+                )
+            }
 
             TopicList(
+                R.drawable.populer,
                 "Popular",
                 movies = popularMovies,
                 onMovieClick = onMovieClick,
@@ -103,6 +120,7 @@ fun ExploreScreen(
                 goToMovies = goToMovies
             )
             TopicList(
+                R.drawable.noplaying,
                 "Now playing",
                 movies = nowPlayingMovies,
                 onMovieClick = onMovieClick,
@@ -110,6 +128,7 @@ fun ExploreScreen(
                 goToMovies = goToMovies
             )
             TopicList(
+                R.drawable.upcoming,
                 "Upcoming",
                 movies = upcomingMovies,
                 onMovieClick = onMovieClick,
@@ -117,6 +136,7 @@ fun ExploreScreen(
                 goToMovies = goToMovies
             )
             TopicList(
+                R.drawable.top,
                 "Top Rated",
                 movies = topRatedMovies,
                 onMovieClick = onMovieClick,
@@ -130,6 +150,7 @@ fun ExploreScreen(
 
 @Composable
 fun TopicList(
+    image:Int,
     topicName: String,
     movies: List<Results>,
     onMovieClick: (Deliverables) -> Unit,
@@ -139,26 +160,35 @@ fun TopicList(
 
     Column {
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
+//            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp)
         ) {
+            Image(
+                painterResource(image),
+                contentDescription = topicName,
+                modifier = Modifier.padding(8.dp)
+                    .size(20.dp)
+
+            )
             Text(
                 topicName,
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier.padding(8.dp).weight(1f),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Black
             )
             if (movies.size > 5) {
-                TextButton(onClick = { goToMovies(index) }) {
-                    Text("See All", fontWeight = FontWeight.SemiBold)
+                TextButton(onClick = { goToMovies(index) },
+                   ) {
+                    Text("See All", color = Color.Red, fontWeight = FontWeight.SemiBold)
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                         contentDescription = "See All",
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(18.dp),
+                        Color.Red
                     )
                 }
             }
