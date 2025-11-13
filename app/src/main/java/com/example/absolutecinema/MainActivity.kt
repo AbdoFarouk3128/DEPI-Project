@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
@@ -18,28 +20,34 @@ import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
 import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
-import com.google.firebase.Firebase
-import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FirebaseApp.initializeApp(this)
         setContent {
             AbsoluteCinemaTheme {
                 val navController = rememberNavController()
+                val firebaseViewModel: FirebaseViewModel = viewModel()
                 val watchListViewModel: WatchlistMoviesViewModel = viewModel()
                 val likedListViewModel: LikedMoviesViewModel = viewModel()
                 val watchedListViewModel: WatchedMoviesViewModel = viewModel()
                 val ratedMovieViewModel: RatedMovieViewModel = viewModel()
-                val firebaseViewModel:FirebaseViewModel= viewModel()
+
+                // ✅ Observe auth state from LiveData - automatically updates!
+                val isUserLoggedIn by firebaseViewModel.isLoggedIn.observeAsState(initial = false)
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        BottomNavigationBar(navController = navController)
+                        BottomNavigationBar(
+                            navController = navController,
+                            isUserLoggedIn = isUserLoggedIn,
+                            onAuthRequired = {
+                                navController.navigate("login") {
+                                    launchSingleTop = true
+                                }
+                            }
+                        )
                     }
                 ) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
@@ -49,7 +57,7 @@ class MainActivity : ComponentActivity() {
                             likedMoviesViewModel = likedListViewModel,
                             watchedListViewModel = watchedListViewModel,
                             ratedMovieViewModel = ratedMovieViewModel,
-                            firebaseViewModel = firebaseViewModel,
+                            firebaseViewModel = firebaseViewModel
                         )
                     }
                 }
@@ -57,21 +65,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-//@Composable
-//fun Navigation(auth: FirebaseAuth, startDestination: String, modifier: Modifier = Modifier) {
-//
-//    val navController = rememberNavController()
-//    NavHost(
-//        navController = navController,
-//        startDestination = startDestination
-//    ) {
-//        composable("signup") { SignUP(navController, auth) }
-//        composable("login") { Login(navController, auth) }
-//        composable("home") { Home(navController, auth) }
-//    }
-//}
-
-
-
-

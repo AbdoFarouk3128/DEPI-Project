@@ -75,6 +75,10 @@ dependencies {
     //navigation
     implementation("androidx.navigation:navigation-compose:2.8.3")
     implementation("com.google.android.gms:play-services-base:18.5.0")
+    // Firebase Storage for profile pictures
+    implementation("com.google.firebase:firebase-storage:20.3.0")
 
+    // Coil for image loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
 }

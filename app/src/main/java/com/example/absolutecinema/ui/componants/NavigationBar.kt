@@ -4,7 +4,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -13,42 +12,60 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.absolutecinema.navigation.Screen
 
+data class NavigationItem(
+    val screen: Screen,
+    val icon: ImageVector,
+    val label: String,
+    val requiresAuth: Boolean = false
+)
+
 @Composable
-fun BottomNavigationBar(navController: NavHostController) {
+fun BottomNavigationBar(
+    navController: NavHostController,
+    isUserLoggedIn: Boolean,
+    onAuthRequired: () -> Unit
+) {
     val items = listOf(
-        Triple(Screen.Explore, Icons.Default.LocalFireDepartment, "explore"),
-        Triple(Screen.Home, Icons.Default.Search, "Search"),
-        Triple(Screen.Lists, Icons.Default.List, "Lists"),
-        Triple(Screen.Explore, Icons.Default.Person, "Profile")
+        NavigationItem(Screen.Explore, Icons.Default.Home, "Explore", requiresAuth = false),
+        NavigationItem(Screen.Home, Icons.Default.Search, "Search", requiresAuth = false),
+        NavigationItem(Screen.Lists, Icons.Default.List, "List", requiresAuth = true),
+        NavigationItem(Screen.Profile, Icons.Default.Person, "Profile", requiresAuth = true)
     )
 
     NavigationBar {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
-        items.forEach { (screen, icon, label) ->
+        items.forEach { item ->
+            val isSelected = currentDestination?.hierarchy?.any { it.route == item.screen.route } == true
+
             NavigationBarItem(
-                selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                selected = isSelected,
                 onClick = {
-                    navController.navigate(screen.route) {
-                        // Avoid multiple copies of the same destination
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
+                    // Check if authentication is required
+                    if (item.requiresAuth && !isUserLoggedIn) {
+                        onAuthRequired()
+                    } else {
+                        navController.navigate(item.screen.route) {
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 },
                 icon = {
                     Icon(
-                        imageVector = icon,
-                        contentDescription = label
+                        imageVector = item.icon,
+                        contentDescription = item.label
                     )
                 },
-                label = { Text(label) }
+                label = { Text(item.label) }
             )
         }
     }

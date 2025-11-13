@@ -8,30 +8,40 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+// ✅ FIXED: Added default values for all parameters
 data class WatchlistMovieData(
-    val movieId: String="",
-    val posterPath: String=""
+    val movieId: String = "",
+    val posterPath: String = ""
 )
+
+// ✅ FIXED: Added default values
 data class LikedMovieData(
-    val movieId: String,
-    val posterPath: String
+    val movieId: String = "",
+    val posterPath: String = ""
 )
+
+// ✅ FIXED: Added default values
 data class WatchedMovieData(
-    val movieId: String,
-    val posterPath: String
+    val movieId: String = "",
+    val posterPath: String = ""
 )
+
 data class RatedMovieData(
-    val movieId: String="",
-    var rating: Int=0
+    val movieId: String = "",
+    var rating: Int = 0
 )
+
 class WatchlistMoviesViewModel : ViewModel() {
 
     private val _watchlist = MutableLiveData<MutableList<WatchlistMovieData>>(mutableListOf())
     val watchlist: LiveData<MutableList<WatchlistMovieData>> = _watchlist
 
     private val firestore = FirebaseFirestore.getInstance()
-    private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-    private val userWatchlistRef = firestore.collection("users").document(userId).collection("watchlist")
+    // ✅ FIXED: Get userId dynamically to support multiple users
+    private fun getUserId() = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+
+    // ✅ FIXED: Get user-specific reference
+    private fun getUserWatchlistRef() = firestore.collection("users").document(getUserId()).collection("watchlist")
 
 //    init {
 //        // Automatically load data when ViewModel is created
@@ -42,6 +52,7 @@ class WatchlistMoviesViewModel : ViewModel() {
     fun watchlistControl(movieId: String, posterPath: String) {
         val currentList = _watchlist.value ?: mutableListOf()
         val existingItem = currentList.find { it.movieId == movieId }
+        val userWatchlistRef = getUserWatchlistRef()
 
         if (existingItem != null) {
             // Remove locally and in Firestore
@@ -75,6 +86,7 @@ class WatchlistMoviesViewModel : ViewModel() {
 
     // 🟣 Fetch movies from Firestore and update LiveData
     fun loadWatchlist() {
+        val userWatchlistRef = getUserWatchlistRef()
         userWatchlistRef.get()
             .addOnSuccessListener { snapshot ->
                 val fetchedMovies = snapshot.documents.mapNotNull { doc ->
@@ -91,6 +103,7 @@ class WatchlistMoviesViewModel : ViewModel() {
 
     // 🔁 Optional: Listen to live Firestore updates in real-time
     fun listenToWatchlistChanges() {
+        val userWatchlistRef = getUserWatchlistRef()
         userWatchlistRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
                 Log.e("Watchlist", "Listen failed.", e)
@@ -108,19 +121,24 @@ class WatchlistMoviesViewModel : ViewModel() {
         }
     }
 }
+
 class LikedMoviesViewModel : ViewModel() {
 
     private val _likedList = MutableLiveData<MutableList<LikedMovieData>>(mutableListOf())
     val likedList: LiveData<MutableList<LikedMovieData>> = _likedList
 
     private val firestore = FirebaseFirestore.getInstance()
-    private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-    private val userLikedRef = firestore.collection("users").document(userId).collection("liked")
+    // ✅ FIXED: Get userId dynamically to support multiple users
+    private fun getUserId() = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+
+    // ✅ FIXED: Get user-specific reference
+    private fun getUserLikedRef() = firestore.collection("users").document(getUserId()).collection("liked")
 
     // Add or remove movie
     fun likedListControl(movieId: String, posterPath: String) {
         val currentList = _likedList.value ?: mutableListOf()
         val existingItem = currentList.find { it.movieId == movieId }
+        val userLikedRef = getUserLikedRef()
 
         if (existingItem != null) {
             currentList.remove(existingItem)
@@ -142,6 +160,7 @@ class LikedMoviesViewModel : ViewModel() {
 
     // Load from Firestore
     fun loadLikedMovies() {
+        val userLikedRef = getUserLikedRef()
         userLikedRef.get()
             .addOnSuccessListener { snapshot ->
                 val fetchedMovies = snapshot.documents.mapNotNull { doc ->
@@ -154,18 +173,23 @@ class LikedMoviesViewModel : ViewModel() {
             }
     }
 }
+
 class WatchedMoviesViewModel : ViewModel() {
 
     private val _watchedList = MutableLiveData<MutableList<WatchedMovieData>>(mutableListOf())
     val watchedList: LiveData<MutableList<WatchedMovieData>> = _watchedList
 
     private val firestore = FirebaseFirestore.getInstance()
-    private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-    private val userWatchedRef = firestore.collection("users").document(userId).collection("watched")
+    // ✅ FIXED: Get userId dynamically to support multiple users
+    private fun getUserId() = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+
+    // ✅ FIXED: Get user-specific reference
+    private fun getUserWatchedRef() = firestore.collection("users").document(getUserId()).collection("watched")
 
     fun watchedListControl(movieId: String, posterPath: String) {
         val currentList = _watchedList.value ?: mutableListOf()
         val existingItem = currentList.find { it.movieId == movieId }
+        val userWatchedRef = getUserWatchedRef()
 
         if (existingItem != null) {
             currentList.remove(existingItem)
@@ -186,6 +210,7 @@ class WatchedMoviesViewModel : ViewModel() {
     }
 
     fun loadWatchedMovies() {
+        val userWatchedRef = getUserWatchedRef()
         userWatchedRef.get()
             .addOnSuccessListener { snapshot ->
                 val fetchedMovies = snapshot.documents.mapNotNull { doc ->
@@ -198,12 +223,18 @@ class WatchedMoviesViewModel : ViewModel() {
             }
     }
 }
+
 class RatedMovieViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
     private val _ratedMovies = MutableLiveData<MutableList<RatedMovieData>>(mutableListOf())
     val ratedMovies: LiveData<MutableList<RatedMovieData>> = _ratedMovies
+
+    // ✅ FIXED: Get user-specific reference
+    private fun getUserRatedRef() = auth.currentUser?.let { user ->
+        firestore.collection("users").document(user.uid).collection("ratedMovies")
+    }
 
     // --- Add or update rating locally + in Firestore ---
     fun ratedMoviesControl(movieId: String, rating: Int) {
@@ -265,9 +296,11 @@ class RatedMovieViewModel : ViewModel() {
 
         _ratedMovies.value = currentList
     }
+
     fun updateCurrentMovieRating(newRating: Int) {
         _currentRating.value = newRating
     }
+
     // --- Fetch all rated movies from Firestore ---
     fun fetchRatedMovies() {
         val currentUser = auth.currentUser ?: return
@@ -292,6 +325,7 @@ class RatedMovieViewModel : ViewModel() {
                 Log.e("RatedMovieViewModel", "Error fetching rated movies", e)
             }
     }
+
     // Inside RatedMovieViewModel
     private val _currentRating = MutableLiveData<Int>()
     val currentRating: LiveData<Int> = _currentRating

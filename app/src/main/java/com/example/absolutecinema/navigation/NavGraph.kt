@@ -12,6 +12,7 @@ import com.example.absolutecinema.ui.LikedListScreen
 import com.example.absolutecinema.ui.ListsScreen
 import com.example.absolutecinema.ui.Login
 import com.example.absolutecinema.ui.MovieDetails
+import com.example.absolutecinema.ui.ProfileScreen
 import com.example.absolutecinema.ui.RatedScreen
 import com.example.absolutecinema.ui.SignUP
 import com.example.absolutecinema.ui.TopicScreen
@@ -215,7 +216,17 @@ fun NavGraph(
            )
         }
 //        composable(route = Screen.Home.route) { Home(navController, auth) }
-
+        // Profile Screen
+        composable(route = Screen.Profile.route) {
+            ProfileScreen(
+                viewModel = firebaseViewModel,
+                onSignOut = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
     }
 }
 
