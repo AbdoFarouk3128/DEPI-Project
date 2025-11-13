@@ -23,10 +23,6 @@ data class MovieDetails(
     var videos: VideosResponse? = null // ✅ ADD THIS
 )
 
-data class Genre(
-    val name: String
-)
-
 data class Credits(
     val cast: List<CastMember>
 )

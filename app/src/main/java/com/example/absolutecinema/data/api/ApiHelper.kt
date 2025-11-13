@@ -166,3 +166,29 @@ fun searchForMovie(query: String, onResult: (List<Results>) -> Unit) {
         }
     })
 }
+
+fun getGenres(onResult: (List<Genre>) -> Unit) {
+    cinemaCallable.getMovieGenres().enqueue(object : Callback<GenreResponse> {
+        override fun onResponse(call: Call<GenreResponse>, response: Response<GenreResponse>) {
+            val genres = response.body()?.genres ?: emptyList()
+            onResult(genres)
+        }
+
+        override fun onFailure(call: Call<GenreResponse>, t: Throwable) {
+            onResult(emptyList())
+        }
+    })
+}
+
+fun discoverMoviesByGenre(genreId: String, onResult: (List<Results>) -> Unit) {
+    cinemaCallable.discoverMovie(genreId = genreId).enqueue(object : Callback<Cinema> {
+        override fun onResponse(call: Call<Cinema>, response: Response<Cinema>) {
+            val results = response.body()?.results ?: emptyList()
+            onResult(results)
+        }
+
+        override fun onFailure(call: Call<Cinema>, t: Throwable) {
+            onResult(emptyList())
+        }
+    })
+}

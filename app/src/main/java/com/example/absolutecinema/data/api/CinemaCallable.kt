@@ -65,4 +65,11 @@ interface CinemaCallable {
         @Query("api_key") key : String = API_KEY
     ):
             Call<Cinema>
+
+    @GET("genre/movie/list")
+    fun getMovieGenres(
+        @Query("language") language: String = "en",
+        @Query("api_key") key : String = API_KEY
+    ):
+            Call<GenreResponse>
 }
