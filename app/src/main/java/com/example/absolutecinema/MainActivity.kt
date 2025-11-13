@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.absolutecinema.navigation.NavGraph
 import com.example.absolutecinema.ui.componants.BottomNavigationBar
@@ -36,18 +37,26 @@ class MainActivity : ComponentActivity() {
                 // ✅ Observe auth state from LiveData - automatically updates!
                 val isUserLoggedIn by firebaseViewModel.isLoggedIn.observeAsState(initial = false)
 
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
+                val dontShowBottomBar = when (currentRoute) {
+                    "signup", "login" -> true
+                    else -> false
+                }
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        BottomNavigationBar(
-                            navController = navController,
-                            isUserLoggedIn = isUserLoggedIn,
-                            onAuthRequired = {
-                                navController.navigate("login") {
-                                    launchSingleTop = true
+                        if(!dontShowBottomBar){
+                            BottomNavigationBar(
+                                navController = navController,
+                                isUserLoggedIn = isUserLoggedIn,
+                                onAuthRequired = {
+                                    navController.navigate("login") {
+                                        launchSingleTop = true
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 ) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
