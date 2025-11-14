@@ -29,6 +29,9 @@ fun getPopularMovies(onResult: (List<Results>) -> Unit) {
         override fun onResponse(call: Call<Cinema>, response: Response<Cinema>) {
             val cinema = response.body()
             val movies = cinema?.results!!
+            movies.removeAll{
+                it.id=="1231813"
+            }
             onResult(movies)
 
         }

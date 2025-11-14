@@ -7,6 +7,7 @@ data class Cinema(
 data class Results(
 //    @SerializedName("backdrop_path")
 //    val background:String,
+
     @SerializedName("poster_path")
     val poster: String,
     val id: String,
@@ -15,10 +16,12 @@ data class Results(
     val title: String,
     @SerializedName("release_date")
     val date: String,
-    var isWatched: Boolean = false
+    var isWatched: Boolean = false,
+    val adult: Boolean,
 //    @SerializedName("vote_average")
 //    val rating:String,
 )
+
 data class Trailer(
     val results: ArrayList<Links>
 )
