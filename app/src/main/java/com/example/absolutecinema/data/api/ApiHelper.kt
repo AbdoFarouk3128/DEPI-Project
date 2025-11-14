@@ -183,8 +183,8 @@ fun getGenres(onResult: (List<Genre>) -> Unit) {
     })
 }
 
-fun discoverMoviesByGenre(genreId: String, onResult: (List<Results>) -> Unit) {
-    cinemaCallable.discoverMovie(genreId = genreId).enqueue(object : Callback<Cinema> {
+fun discoverMoviesByGenre(genreIds: String, onResult: (List<Results>) -> Unit) {
+    cinemaCallable.discoverMovie(genreId = genreIds).enqueue(object : Callback<Cinema> {
         override fun onResponse(call: Call<Cinema>, response: Response<Cinema>) {
             val results = response.body()?.results ?: emptyList()
             onResult(results)
