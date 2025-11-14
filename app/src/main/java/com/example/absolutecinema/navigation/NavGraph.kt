@@ -49,7 +49,8 @@ fun NavGraph(
     NavHost(
         navController = navController,
         startDestination = startDestination,
-    ) { composable(Screen.Home.route) {
+    ) {
+        composable(Screen.Home.route) {
         HomeScreen (
             onMovieClick = { deliverable ->
                 navController.navigate(Screen.Details.createRoute(deliverable))
@@ -183,7 +184,7 @@ fun NavGraph(
                 viewModel = firebaseViewModel,
                 goToApp = {
                     navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.SignUP.route) { inclusive = true }
+                        popUpTo(0)
                     }
                 },
                 haveAnAccount = {
@@ -199,7 +200,7 @@ fun NavGraph(
                 },
                 goToApp = {
                     navController.navigate(Screen.Explore.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
+                        popUpTo(0)
                     }
                 }
             )
