@@ -19,8 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,18 +31,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.absolutecinema.data.api.getNowPlayingMovies
-import com.example.absolutecinema.data.api.getPopularMovies
-import com.example.absolutecinema.data.api.getTopRatedMovies
-import com.example.absolutecinema.data.api.getUpcomingMovies
-import com.example.absolutecinema.data.api.searchForMovie
+import com.example.absolutecinema.data.getNowPlayingMovies
+import com.example.absolutecinema.data.getPopularMovies
+import com.example.absolutecinema.data.getTopRatedMovies
+import com.example.absolutecinema.data.getUpcomingMovies
 import com.example.absolutecinema.navigation.Deliverables
 import com.example.absolutecinema.ui.theme.darkBlue
 
@@ -111,10 +106,6 @@ fun TopicScreen(
                         .clickable {
                         goBack()
                     }
-
-
-
-
                 )
                 Text(
                     topicName,

@@ -1,4 +1,4 @@
-package com.example.absolutecinema.data.api
+package com.example.absolutecinema.data
 
 data class Genre(
     val id: Int,

@@ -8,16 +8,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.absolutecinema.ui.ExploreScreen
 import com.example.absolutecinema.ui.HomeScreen
-import com.example.absolutecinema.ui.LikedListScreen
 import com.example.absolutecinema.ui.ListsScreen
 import com.example.absolutecinema.ui.Login
 import com.example.absolutecinema.ui.MovieDetails
 import com.example.absolutecinema.ui.ProfileScreen
-import com.example.absolutecinema.ui.RatedScreen
 import com.example.absolutecinema.ui.SignUP
 import com.example.absolutecinema.ui.TopicScreen
-import com.example.absolutecinema.ui.WatchedScreen
-import com.example.absolutecinema.ui.WatchlistScreen
+import com.example.absolutecinema.ui.UserListsScreen
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
@@ -58,7 +55,7 @@ fun NavGraph(
         )
     }
         //lists screen
-        composable(route = Screen.Lists.route) {
+        composable(route = Screen.Lists.route) { backStackEntry ->
             ListsScreen(
                 watchlistViewModel = watchlistViewModel,
                 likedMoviesViewModel = likedMoviesViewModel,
@@ -68,15 +65,42 @@ fun NavGraph(
                     navController.navigate(Screen.Details.createRoute(deliverables))
                 },
                 onSeeAllClick = { listType ->
-                    when (listType) {
-                        "watchlist" -> navController.navigate(Screen.Watchlist.route)
-                        "liked" -> navController.navigate(Screen.LikedList.route)
-                        "watched" -> navController.navigate(Screen.Watched.route)
-                        "rated" -> navController.navigate(Screen.Rated.route)
-                    }
+                    navController.navigate(Screen.UserLists.createRoute(listType))
                 }
             )
-        }        //from here
+        }
+        composable(Screen.UserLists.route,
+            arguments = listOf(navArgument("listType"){
+                type=NavType.StringType
+            })
+            )
+        { backStackEntry ->
+            UserListsScreen(
+                ratedMovieViewModel = ratedMovieViewModel,
+                likedMoviesViewModel = likedMoviesViewModel,
+                watchedMoviesViewModel = watchedListViewModel,
+                watchlistMoviesViewModel = watchlistViewModel,
+                listType = backStackEntry.arguments?.getString("listType")?:"",
+                goBack = {
+                    navController.popBackStack()
+                }
+            ) { deliverables ->
+                navController.navigate(Screen.Details.createRoute(deliverables))
+            }
+
+        }
+        composable(route = Screen.Explore.route) {
+            ExploreScreen(
+                onMovieClick =  { deliverables ->
+                    navController.navigate(Screen.Details.createRoute(deliverables))
+                },
+                goToMovies = {index->
+                    navController.navigate(Screen.Topic.createRoute(index))
+                },
+                firebaseViewModel = firebaseViewModel
+            )
+        }
+        //from here
         composable(route = Screen.Topic.route,
             arguments = listOf(navArgument("index") { type = NavType.IntType })
         ) { backStackEntry ->
@@ -138,47 +162,7 @@ fun NavGraph(
 //                }
             )
         }
-        composable(
-            route = Screen.Watchlist.route,
-        ) { backStackEntry ->
-            WatchlistScreen(
-                viewModel = watchlistViewModel,
-                onMovieClick = { deliverables ->
-                    navController.navigate(Screen.Details.createRoute(deliverables))
-                }
-            )
-        }
-        composable(
-            route = Screen.LikedList.route,
-        ) { backStackEntry ->
-            LikedListScreen(
-                viewModel = likedMoviesViewModel,
-                onMovieClick = { deliverables ->
-                    navController.navigate(Screen.Details.createRoute(deliverables))
-                }
-            )
-        }
 
-        composable(
-            route = Screen.Watched.route,
-        ) { backStackEntry ->
-            WatchedScreen(
-                viewModel = watchedListViewModel,
-                onMovieClick = { deliverables ->
-                    navController.navigate(Screen.Details.createRoute(deliverables))
-                }
-            )
-        }
-        composable(
-            route = Screen.Rated.route,
-        ) { backStackEntry ->
-            RatedScreen(
-                viewModel = ratedMovieViewModel,
-                onMovieClick = { deliverables ->
-                    navController.navigate(Screen.Details.createRoute(deliverables))
-                }
-            )
-        }
         composable(route = Screen.SignUP.route) {
             SignUP(
                 viewModel = firebaseViewModel,
@@ -205,17 +189,7 @@ fun NavGraph(
                 }
             )
         }
-        composable(route = Screen.Explore.route) {
-           ExploreScreen(
-               onMovieClick =  { deliverables ->
-                   navController.navigate(Screen.Details.createRoute(deliverables))
-               },
-               goToMovies = {index->
-                   navController.navigate(Screen.Topic.createRoute(index))
-               },
-               firebaseViewModel = firebaseViewModel
-           )
-        }
+
 //        composable(route = Screen.Home.route) { Home(navController, auth) }
         // Profile Screen
         composable(route = Screen.Profile.route) {
