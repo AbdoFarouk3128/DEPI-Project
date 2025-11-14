@@ -1,182 +1,200 @@
 package com.example.absolutecinema.ui
 
 import Results
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.example.absolutecinema.data.api.Genre
-import com.example.absolutecinema.data.api.discoverMoviesByGenre
+import com.example.absolutecinema.R
+import com.example.absolutecinema.data.api.getNowPlayingMovies
 import com.example.absolutecinema.data.api.getPopularMovies
-import com.example.absolutecinema.data.api.searchForMovie
+import com.example.absolutecinema.data.api.getTopRatedMovies
+import com.example.absolutecinema.data.api.getUpcomingMovies
 import com.example.absolutecinema.navigation.Deliverables
-import com.example.absolutecinema.viewmodel.GenreViewModel
+import com.example.absolutecinema.ui.theme.darkBlue
+import com.example.absolutecinema.viewmodel.FirebaseViewModel
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun HomeScreen(
+fun ExploreScreen(
     onMovieClick: (Deliverables) -> Unit,
-    genreViewModel: GenreViewModel = viewModel()
+    goToMovies: (Int) -> Unit,
+    firebaseViewModel: FirebaseViewModel,
 ) {
-    var movies by remember { mutableStateOf<List<Results>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedGenreIds by remember { mutableStateOf(setOf<Int>()) }
 
-    val genres by genreViewModel.genres.collectAsState()
+    var topRatedMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
+    var upcomingMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
+    var popularMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
+    var nowPlayingMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
 
-    // Initially load popular movies and genres
+    val firstName by firebaseViewModel.firstName.observeAsState("")
+
     LaunchedEffect(Unit) {
-        isLoading = true
-        getPopularMovies { result ->
-            movies = result
-            isLoading = false
-        }
-        genreViewModel.loadGenres()
+
+        firebaseViewModel.fetchUserFirstName()
+
+        getPopularMovies { popularMovies = it }
+        getNowPlayingMovies { nowPlayingMovies = it }
+        getUpcomingMovies { upcomingMovies = it }
+        getTopRatedMovies { topRatedMovies = it }
     }
 
-    // search works if you type anything
-    LaunchedEffect(searchQuery) {
-        if (searchQuery.isNotBlank()) {
-            isLoading = true
-            searchForMovie(searchQuery) { result ->
-                movies = result
-                isLoading = false
-            }
-        } else {
-            // Reload movies if search is empty
-            isLoading = true
-            getPopularMovies  { result ->
-                movies = result
-                isLoading = false
-            }
-        }
-    }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    val isLoading = popularMovies.isEmpty() ||
+            nowPlayingMovies.isEmpty() ||
+            upcomingMovies.isEmpty() ||
+            topRatedMovies.isEmpty()
 
-        // Search bar
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("Search movies") },
+    if (isLoading) {
+        CircularProgressIndicator(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
         )
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(darkBlue)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
+            // ✅ Display firstName from observed LiveData
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
 
-        LazyRow(
+            ) {
+                Text(
+                    text = if (firstName.isNotEmpty()) "Welcome, $firstName" else "Welcome",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+//                Image(
+//                    painterResource(R.drawable.pocorn),
+//                    contentDescription = "Popcorn",
+//                    modifier = Modifier.size(35.dp)
+//                )
+            }
+
+            TopicList(
+                R.drawable.populer,
+                "Popular",
+                movies = popularMovies,
+                onMovieClick = onMovieClick,
+                index = 1,
+                goToMovies = goToMovies
+            )
+            TopicList(
+                R.drawable.noplaying,
+                "Now playing",
+                movies = nowPlayingMovies,
+                onMovieClick = onMovieClick,
+                index = 2,
+                goToMovies = goToMovies
+            )
+            TopicList(
+                R.drawable.upcoming,
+                "Upcoming",
+                movies = upcomingMovies,
+                onMovieClick = onMovieClick,
+                index = 3,
+                goToMovies = goToMovies
+            )
+            TopicList(
+                R.drawable.top,
+                "Top Rated",
+                movies = topRatedMovies,
+                onMovieClick = onMovieClick,
+                index = 4,
+                goToMovies = goToMovies
+            )
+        }
+    }
+
+}
+
+@Composable
+fun TopicList(
+    image:Int,
+    topicName: String,
+    movies: List<Results>,
+    onMovieClick: (Deliverables) -> Unit,
+    index: Int,
+    goToMovies: (Int) -> Unit,
+) {
+
+    Column {
+        Row(
+//            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(horizontal = 8.dp)
         ) {
-            items(genres) { genre: Genre ->
-                val isSelected = selectedGenreIds.contains(genre.id)
-
-                val backgroundColor by animateColorAsState(
-                    targetValue = if (isSelected) Color.Black else Color.LightGray,
-                    label = ""
-                )
-                val textColor by animateColorAsState(
-                    targetValue = if (isSelected) Color.White else Color.Black,
-                    label = ""
-                )
-
-                Button(
-                    onClick = {
-                        selectedGenreIds = if (isSelected) {
-                            selectedGenreIds - genre.id
-                        } else {
-                            selectedGenreIds + genre.id
-                        }
-
-                        // Fetch movies immediately based on selected genres
-                        isLoading = true
-                        if (selectedGenreIds.isEmpty()) {
-                            getPopularMovies { result ->
-                                movies = result
-                                isLoading = false
-                            }
-                        } else {
-                            discoverMoviesByGenre(selectedGenreIds.joinToString(",")) { result ->
-                                movies = result
-                                isLoading = false
-                            }
-                        }
-                    },
-                    shape = RoundedCornerShape(50),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = backgroundColor,
-                        contentColor = textColor
-                    ),
-                    modifier = Modifier.height(36.dp)
-                ) {
-                    Text(
-                        text = genre.name,
-                        color = textColor,
-                        fontSize = 14.sp
+//            Image(
+//                painterResource(image),
+//                contentDescription = topicName,
+//                modifier = Modifier.padding(8.dp)
+//                    .size(20.dp)
+//
+//            )
+            Text(
+                topicName,
+                modifier = Modifier.padding(8.dp).weight(1f),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White
+            )
+            if (movies.size > 5) {
+                TextButton(onClick = { goToMovies(index) },
+                   ) {
+                    Text("See All", color = Color(0xFF00BCD4), fontWeight = FontWeight.SemiBold)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "See All",
+                        modifier = Modifier.size(18.dp),
+                        Color(0xFF00BCD4)
                     )
                 }
             }
         }
-
-        //Movies Grid
-        if (isLoading) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .padding(8.dp)
-                    .weight(1f)
-            ) {
-                items(movies) { movie ->
-                    GlideImage(
-                        model = "https://image.tmdb.org/t/p/w500${movie.poster}",
-                        contentDescription = movie.title,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(0.7f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable {
-                                val deliverable = Deliverables(
-                                    movieId = movie.id,
-                                    poster = movie.poster,
-                                    isWatched = movie.isWatched,
-                                    title = movie.title
-                                )
-                                onMovieClick(deliverable)
-                            }
-                    )
-                }
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp)
+        ) {
+            items(movies) { movie ->
+                MovieCard(movie, onMovieClick)
             }
         }
     }

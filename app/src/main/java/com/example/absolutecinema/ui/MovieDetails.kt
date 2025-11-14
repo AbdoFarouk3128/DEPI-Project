@@ -32,17 +32,11 @@ import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.R
-import com.example.absolutecinema.data.api.CastMember
-import com.example.absolutecinema.data.api.MovieDetails
-import com.example.absolutecinema.data.api.MoviesRelated
-import com.example.absolutecinema.data.api.VideosResponse
-import com.example.absolutecinema.data.api.getMovieDetails
+import com.example.absolutecinema.data.api.*
 import com.example.absolutecinema.navigation.Deliverables
 import com.example.absolutecinema.ui.componants.BottomSheet
-import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
-import com.example.absolutecinema.viewmodel.RatedMovieViewModel
-import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
-import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
+import com.example.absolutecinema.ui.theme.darkBlue
+import com.example.absolutecinema.viewmodel.*
 
 @Composable
 fun MovieDetails(
@@ -63,7 +57,7 @@ fun MovieDetails(
     var movieDetails by remember { mutableStateOf<MovieDetails?>(null) }
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    // ✅ Keep status bar icons DARK (visible on light background at top)
+    // Keep status bar icons dark (but UI is dark blue so this is fine)
     val view = LocalView.current
     DisposableEffect(Unit) {
         val window = (view.context as? Activity)?.window
@@ -73,10 +67,7 @@ fun MovieDetails(
             // Set icons to DARK so they're visible on white background
             androidx.core.view.WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = true
         }
-
-        onDispose {
-            // Keep the same when leaving (no change needed)
-        }
+        onDispose {}
     }
 
     LaunchedEffect(movieId) {
@@ -100,31 +91,35 @@ fun MovieDetails(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
+            .background(darkBlue)
     ) {
         if (movieDetails != null) {
             val details = movieDetails!!
+
             item { BackdropHeader(details, onBack) }
 
-            // About the Movie Section
+            // About Section
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
                     text = "About the Movie",
                     modifier = Modifier.padding(horizontal = 16.dp),
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = details.overview,
                     modifier = Modifier.padding(horizontal = 16.dp),
                     fontSize = 14.sp,
-                    lineHeight = 20.sp
+                    lineHeight = 20.sp,
+                    color = Color.White
                 )
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            // ✅ Trailer Section (NEW!)
+            // Trailer Section
             if (details.videos?.results?.isNotEmpty() == true) {
                 item {
                     TrailerSection(details.videos)
@@ -132,12 +127,13 @@ fun MovieDetails(
                 }
             }
 
-            // Modern Manage Movie Section
+            // Manage Movie
             item {
                 ModernManageMovieSection(onClick = { showBottomSheet = true })
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
+            // Cast
             details.credits?.cast?.let { cast ->
                 if (cast.isNotEmpty()) {
                     item {
@@ -147,6 +143,7 @@ fun MovieDetails(
                 }
             }
 
+            // Recommendations
             if (details.recommendations.isNotEmpty()) {
                 item {
                     RecommendationsSection(details.recommendations, onMovieClick)
@@ -173,15 +170,11 @@ fun ModernManageMovieSection(onClick: () -> Unit) {
             .padding(horizontal = 16.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
+            modifier = Modifier.padding(20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -218,7 +211,7 @@ fun BackdropHeader(movie: MovieDetails, onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp) // ✅ Back to normal height
+            .height(300.dp)
     ) {
         // Backdrop Image
         GlideImage(
@@ -284,42 +277,21 @@ fun BackdropHeader(movie: MovieDetails, onBack: () -> Unit) {
                     text = movie.originalTitle,
                     color = Color.White,
                     fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    style = androidx.compose.ui.text.TextStyle(
-                        shadow = androidx.compose.ui.graphics.Shadow(
-                            color = Color.Black,
-                            offset = androidx.compose.ui.geometry.Offset(2f, 2f),
-                            blurRadius = 4f
-                        )
-                    )
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${movie.releaseDate.substringBefore("-")} • ${movie.genres.joinToString { it.name }}",
                     color = Color.White,
-                    fontSize = 14.sp,
-                    style = androidx.compose.ui.text.TextStyle(
-                        shadow = androidx.compose.ui.graphics.Shadow(
-                            color = Color.Black,
-                            offset = androidx.compose.ui.geometry.Offset(2f, 2f),
-                            blurRadius = 4f
-                        )
-                    )
+                    fontSize = 14.sp
                 )
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // IMDb and Rating Row
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp) // ✅ Reduced from 8.dp to 4.dp
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     movie.imdbId?.let { imdbId ->
-                        // Rectangular IMDb Button
                         Card(
                             shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFFF5C518) // IMDb yellow
-                            ),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5C518)),
                             modifier = Modifier.clickable {
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.imdb.com/title/$imdbId/"))
                                 context.startActivity(intent)
@@ -327,30 +299,27 @@ fun BackdropHeader(movie: MovieDetails, onBack: () -> Unit) {
                         ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.imdb_logo),
-                                    contentDescription = "View on IMDb",
+                                    contentDescription = "IMDb",
                                     tint = Color.Unspecified,
-                                    modifier = Modifier.size(45.dp) // ✅ Increased from 40.dp to 52.dp
+                                    modifier = Modifier.size(45.dp)
                                 )
                             }
                         }
                     }
 
-                    // Rating Display
+                    Spacer(modifier = Modifier.width(8.dp))
+
                     Card(
                         shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.Black.copy(alpha = 0.6f)
-                        )
+                        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.6f))
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Star,
@@ -380,12 +349,15 @@ fun BackdropHeader(movie: MovieDetails, onBack: () -> Unit) {
 @Composable
 fun CastSection(cast: List<CastMember>) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-        Text("Cast", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(
+            "Cast",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
         Spacer(modifier = Modifier.height(8.dp))
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(cast) { member ->
-                CastMemberItem(member)
-            }
+            items(cast) { member -> CastMemberItem(member) }
         }
     }
 }
@@ -403,7 +375,8 @@ fun CastMemberItem(member: CastMember) {
                 contentDescription = member.name,
                 modifier = Modifier
                     .size(80.dp)
-                    .clip(CircleShape)
+                    .clip(CircleShape),
+                tint = Color.White
             )
         } else {
             GlideImage(
@@ -419,7 +392,8 @@ fun CastMemberItem(member: CastMember) {
             text = member.name,
             fontSize = 12.sp,
             maxLines = 2,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = Color.White
         )
     }
 }
@@ -427,7 +401,12 @@ fun CastMemberItem(member: CastMember) {
 @Composable
 fun RecommendationsSection(recommendations: List<MoviesRelated>, onMovieClick: (Deliverables) -> Unit) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-        Text("You might also like", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(
+            "You might also like",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
         Spacer(modifier = Modifier.height(8.dp))
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(recommendations) { movie ->
@@ -449,7 +428,13 @@ fun RecommendedMovieItem(movie: MoviesRelated, onMovieClick: (Deliverables) -> U
             .height(180.dp)
             .clip(RoundedCornerShape(8.dp))
             .clickable {
-                onMovieClick(Deliverables(movieId = movie.id, poster = movie.poster ?: "", title = movie.title))
+                onMovieClick(
+                    Deliverables(
+                        movieId = movie.id,
+                        poster = movie.poster ?: "",
+                        title = movie.title
+                    )
+                )
             }
     )
 }
@@ -457,7 +442,6 @@ fun RecommendedMovieItem(movie: MoviesRelated, onMovieClick: (Deliverables) -> U
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun TrailerSection(videos: VideosResponse?) {
-    // Get the official trailer or first trailer
     val trailer = videos?.results?.firstOrNull { it.type == "Trailer" && it.site == "YouTube" && it.official }
         ?: videos?.results?.firstOrNull { it.type == "Trailer" && it.site == "YouTube" }
 
@@ -465,7 +449,12 @@ fun TrailerSection(videos: VideosResponse?) {
 
     trailer?.let {
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Text("Trailer", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(
+                "Trailer",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
             Spacer(modifier = Modifier.height(12.dp))
 
             // YouTube Trailer Card
@@ -474,15 +463,12 @@ fun TrailerSection(videos: VideosResponse?) {
                     .fillMaxWidth()
                     .height(200.dp)
                     .clickable {
-                        // Open YouTube video
-                        val youtubeIntent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://www.youtube.com/watch?v=${trailer.key}")
-                        )
+                        val youtubeIntent =
+                            Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=${trailer.key}"))
                         context.startActivity(youtubeIntent)
                     },
                 shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     // YouTube Thumbnail
@@ -502,7 +488,7 @@ fun TrailerSection(videos: VideosResponse?) {
 
                     // Play button
                     Icon(
-                        painter = painterResource(R.drawable.ic_play_circle), // You'll need this icon
+                        painter = painterResource(R.drawable.ic_play_circle),
                         contentDescription = "Play Trailer",
                         tint = Color.White,
                         modifier = Modifier
@@ -512,8 +498,8 @@ fun TrailerSection(videos: VideosResponse?) {
 
                     // YouTube logo in corner
                     Image(
-                        painter = painterResource(R.drawable.youtube_logo), // You'll need this
-                        contentDescription = "YouTube",
+                        painter = painterResource(R.drawable.youtube_logo),
+                        contentDescription = "YouTube Logo",
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(12.dp)
@@ -529,14 +515,7 @@ fun TrailerSection(videos: VideosResponse?) {
                         modifier = Modifier
                             .align(Alignment.BottomStart)
                             .padding(12.dp)
-                            .fillMaxWidth(0.7f),
-                        style = androidx.compose.ui.text.TextStyle(
-                            shadow = androidx.compose.ui.graphics.Shadow(
-                                color = Color.Black,
-                                offset = androidx.compose.ui.geometry.Offset(2f, 2f),
-                                blurRadius = 4f
-                            )
-                        )
+                            .fillMaxWidth(0.7f)
                     )
                 }
             }

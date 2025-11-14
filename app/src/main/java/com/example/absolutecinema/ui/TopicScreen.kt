@@ -1,6 +1,7 @@
 package com.example.absolutecinema.ui
 
 import Results
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +46,7 @@ import com.example.absolutecinema.data.api.getTopRatedMovies
 import com.example.absolutecinema.data.api.getUpcomingMovies
 import com.example.absolutecinema.data.api.searchForMovie
 import com.example.absolutecinema.navigation.Deliverables
+import com.example.absolutecinema.ui.theme.darkBlue
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -83,7 +86,7 @@ fun TopicScreen(
         }
 
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().background(darkBlue)) {
 
 
 
@@ -102,6 +105,7 @@ fun TopicScreen(
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Go Back",
+                    tint = Color.White,
                     modifier = Modifier.padding(12.dp)
                         .size(28.dp)
                         .clickable {
@@ -117,7 +121,7 @@ fun TopicScreen(
                     modifier = Modifier.padding(8.dp),
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = Color.White
                 )
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
