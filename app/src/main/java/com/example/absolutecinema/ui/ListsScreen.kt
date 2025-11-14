@@ -27,6 +27,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.data.api.getDetails
 import com.example.absolutecinema.navigation.Deliverables
+import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
 import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
@@ -70,7 +71,7 @@ fun ListsScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+                .background(darkBlue),
             contentAlignment = Alignment.Center
         ) {
             Column(
@@ -85,7 +86,7 @@ fun ListsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(darkBlue)
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 16.dp)
         ) {
@@ -94,7 +95,9 @@ fun ListsScreen(
                 text = "My Lists",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
+                color = Color.White,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -206,6 +209,7 @@ fun MovieListSection(
                 Text(
                     text = title,
                     fontSize = 20.sp,
+                    color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.width(8.dp))
