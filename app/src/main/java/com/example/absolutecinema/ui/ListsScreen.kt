@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.absolutecinema.data.api.getDetails
+import com.example.absolutecinema.data.getDetails
 import com.example.absolutecinema.navigation.Deliverables
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
@@ -40,7 +40,7 @@ fun ListsScreen(
     watchedMoviesViewModel: WatchedMoviesViewModel,
     ratedMovieViewModel: RatedMovieViewModel,
     onMovieClick: (Deliverables) -> Unit,
-    onSeeAllClick: (String) -> Unit
+    onSeeAllClick: (String) -> Unit,
 ) {
     // ✅ Observe data from ViewModels (auto-updates when Firebase changes)
     val watchlist by watchlistViewModel.watchlist.observeAsState(emptyList())

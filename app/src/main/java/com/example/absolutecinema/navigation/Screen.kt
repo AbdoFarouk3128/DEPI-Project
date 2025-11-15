@@ -11,6 +11,11 @@ sealed class Screen(val route: String) {
             return "movies/$index"
         }
     }
+    object UserLists:Screen("userList/{listType}"){
+        fun createRoute(listType:String):String{
+            return "userList/$listType"
+        }
+    }
 
     object Details : Screen("details/{deliverables}") {
         fun createRoute(deliverables: Deliverables): String {
@@ -18,38 +23,6 @@ sealed class Screen(val route: String) {
             val json = gson.toJson(deliverables)
             val encoded = URLEncoder.encode(json, "UTF-8")
             return "details/$encoded"
-        }
-    }
-    object Watchlist : Screen("watchlist/{deliverables}"){
-        fun createRoute(deliverables: Deliverables): String {
-            val gson = com.google.gson.Gson()
-            val json = gson.toJson(deliverables)
-            val encoded = URLEncoder.encode(json, "UTF-8")
-            return "watchlist/$encoded"
-        }
-    }
-    object LikedList : Screen("likedList/{deliverables}"){
-        fun createRoute(deliverables: Deliverables): String {
-            val gson = com.google.gson.Gson()
-            val json = gson.toJson(deliverables)
-            val encoded = URLEncoder.encode(json, "UTF-8")
-            return "likedList/$encoded"
-        }
-    }
-    object Watched:Screen("watched/{deliverables}"){
-        fun createRoute(deliverables: Deliverables): String {
-            val gson = com.google.gson.Gson()
-            val json = gson.toJson(deliverables)
-            val encoded = URLEncoder.encode(json, "UTF-8")
-            return "watched/$encoded"
-        }
-    }
-    object Rated:Screen("rated/{deliverables}"){
-        fun createRoute(deliverables: Deliverables): String {
-            val gson = com.google.gson.Gson()
-            val json = gson.toJson(deliverables)
-            val encoded = URLEncoder.encode(json, "UTF-8")
-            return "rated/$encoded"
         }
     }
     object SignUP : Screen("signup")

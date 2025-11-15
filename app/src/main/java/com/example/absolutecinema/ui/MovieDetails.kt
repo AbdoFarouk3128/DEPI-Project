@@ -32,8 +32,12 @@ import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.R
-import com.example.absolutecinema.data.api.*
 import com.example.absolutecinema.navigation.Deliverables
+import com.example.absolutecinema.data.CastMember
+import com.example.absolutecinema.data.MovieDetails
+import com.example.absolutecinema.data.MoviesRelated
+import com.example.absolutecinema.data.VideosResponse
+import com.example.absolutecinema.data.getMovieDetails
 import com.example.absolutecinema.ui.componants.BottomSheet
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.*

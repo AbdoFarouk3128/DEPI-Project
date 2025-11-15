@@ -2,9 +2,9 @@ package com.example.absolutecinema.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.absolutecinema.data.api.Genre
-import com.example.absolutecinema.data.api.GenreResponse
-import com.example.absolutecinema.data.api.CinemaCallable
+import com.example.absolutecinema.data.Genre
+import com.example.absolutecinema.data.GenreResponse
+import com.example.absolutecinema.data.CinemaCallable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

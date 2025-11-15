@@ -3,6 +3,7 @@ package com.example.absolutecinema.ui
 import Results
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -34,11 +34,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.absolutecinema.R
-import com.example.absolutecinema.data.api.getNowPlayingMovies
-import com.example.absolutecinema.data.api.getPopularMovies
-import com.example.absolutecinema.data.api.getTopRatedMovies
-import com.example.absolutecinema.data.api.getUpcomingMovies
+import com.example.absolutecinema.data.getNowPlayingMovies
+import com.example.absolutecinema.data.getPopularMovies
+import com.example.absolutecinema.data.getTopRatedMovies
+import com.example.absolutecinema.data.getUpcomingMovies
 import com.example.absolutecinema.navigation.Deliverables
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
@@ -74,11 +73,20 @@ fun ExploreScreen(
             topRatedMovies.isEmpty()
 
     if (isLoading) {
-        CircularProgressIndicator(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .wrapContentSize(Alignment.Center)
-        )
+                .background(darkBlue),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator()
+
+            }
+        }
     } else {
         Column(
             modifier = Modifier
@@ -108,7 +116,6 @@ fun ExploreScreen(
             }
 
             TopicList(
-                R.drawable.populer,
                 "Popular",
                 movies = popularMovies,
                 onMovieClick = onMovieClick,
@@ -116,7 +123,6 @@ fun ExploreScreen(
                 goToMovies = goToMovies
             )
             TopicList(
-                R.drawable.noplaying,
                 "Now playing",
                 movies = nowPlayingMovies,
                 onMovieClick = onMovieClick,
@@ -124,7 +130,6 @@ fun ExploreScreen(
                 goToMovies = goToMovies
             )
             TopicList(
-                R.drawable.upcoming,
                 "Upcoming",
                 movies = upcomingMovies,
                 onMovieClick = onMovieClick,
@@ -132,7 +137,6 @@ fun ExploreScreen(
                 goToMovies = goToMovies
             )
             TopicList(
-                R.drawable.top,
                 "Top Rated",
                 movies = topRatedMovies,
                 onMovieClick = onMovieClick,
@@ -146,7 +150,6 @@ fun ExploreScreen(
 
 @Composable
 fun TopicList(
-    image:Int,
     topicName: String,
     movies: List<Results>,
     onMovieClick: (Deliverables) -> Unit,
