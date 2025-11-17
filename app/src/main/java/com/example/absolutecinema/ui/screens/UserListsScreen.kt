@@ -1,4 +1,4 @@
-package com.example.absolutecinema.ui
+package com.example.absolutecinema.ui.screens
 
 
 import Results

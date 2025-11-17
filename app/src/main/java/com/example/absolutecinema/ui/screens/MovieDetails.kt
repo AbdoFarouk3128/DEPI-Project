@@ -1,4 +1,4 @@
-package com.example.absolutecinema.ui
+package com.example.absolutecinema.ui.screens
 
 import android.app.Activity
 import android.content.Intent
@@ -39,6 +39,7 @@ import com.example.absolutecinema.data.MoviesRelated
 import com.example.absolutecinema.data.VideosResponse
 import com.example.absolutecinema.data.getMovieDetails
 import com.example.absolutecinema.ui.componants.BottomSheet
+import com.example.absolutecinema.ui.componants.ManageMovie
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.*
 
@@ -105,13 +106,28 @@ fun MovieDetails(
             // About Section
             item {
                 Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = "About the Movie",
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                Row {
+
+                    Text(
+                        text = "About the Movie",
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Spacer(Modifier.width(130.dp))
+                    ManageMovie(Modifier.padding(12.dp).padding(top = 12.dp),
+                        movieId = movieId,
+                        posterPath = posterPath,
+                        watchlistViewModel = watchlistViewModel,
+                        likedListViewModel = likedListViewModel,
+                        watchedMoviesViewModel = watchedMoviesViewModel,
+                        ratedMovieViewModel = ratedMovieViewModel,
+                        )
+                    Spacer(Modifier.width(25.dp))
+                }
+
+
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = details.overview,
@@ -165,6 +181,7 @@ fun MovieDetails(
         }
     }
 }
+
 
 @Composable
 fun ModernManageMovieSection(onClick: () -> Unit) {
@@ -468,7 +485,10 @@ fun TrailerSection(videos: VideosResponse?) {
                     .height(200.dp)
                     .clickable {
                         val youtubeIntent =
-                            Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=${trailer.key}"))
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://www.youtube.com/watch?v=${trailer.key}")
+                            )
                         context.startActivity(youtubeIntent)
                     },
                 shape = RoundedCornerShape(12.dp),

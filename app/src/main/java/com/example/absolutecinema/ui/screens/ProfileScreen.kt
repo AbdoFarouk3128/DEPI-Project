@@ -1,4 +1,4 @@
-package com.example.absolutecinema.ui
+package com.example.absolutecinema.ui.screens
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
