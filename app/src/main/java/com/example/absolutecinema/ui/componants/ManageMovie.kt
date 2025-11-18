@@ -33,13 +33,11 @@ fun ManageMovie(
     watchlistViewModel: WatchlistMoviesViewModel,
     likedListViewModel: LikedMoviesViewModel,
     watchedMoviesViewModel: WatchedMoviesViewModel,
-    ratedMovieViewModel: RatedMovieViewModel,
 ) {
 // ✅ Observe LiveData from ViewModels
     val watchlist by watchlistViewModel.watchlist.observeAsState(mutableListOf())
     val likedList by likedListViewModel.likedList.observeAsState(mutableListOf())
     val watchedList by watchedMoviesViewModel.watchedList.observeAsState(mutableListOf())
-    val currentRating by ratedMovieViewModel.currentRating.observeAsState(0)
 
     // ✅ Check if movie exists in each list
     var isWatched by remember { mutableStateOf(false) }
@@ -48,10 +46,7 @@ fun ManageMovie(
 
     val sheetState = rememberModalBottomSheetState()
 
-    // ✅ Fetch the movie rating when component loads
-    LaunchedEffect(movieId) {
-        ratedMovieViewModel.fetchMovieRating(movieId)
-    }
+
 
     // ✅ Update local states when LiveData changes
     LaunchedEffect(watchlist) {

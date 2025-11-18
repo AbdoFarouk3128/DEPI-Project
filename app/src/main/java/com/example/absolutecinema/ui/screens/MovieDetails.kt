@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +41,8 @@ import com.example.absolutecinema.data.VideosResponse
 import com.example.absolutecinema.data.getMovieDetails
 import com.example.absolutecinema.ui.componants.BottomSheet
 import com.example.absolutecinema.ui.componants.ManageMovie
+import com.example.absolutecinema.ui.componants.RatingBar
+import com.example.absolutecinema.ui.componants.RatingStatisticsBar
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.*
 
@@ -54,13 +57,12 @@ fun MovieDetails(
     ratedMovieViewModel: RatedMovieViewModel,
     onBack: () -> Unit,
     onMovieClick: (Deliverables) -> Unit,
-    watchlistControl: (String, String) -> Unit,
-    likedListControl: (String, String) -> Unit,
-    watchedListControl: (String, String) -> Unit,
-    ratedListControl: (String, Int) -> Unit,
 ) {
     var movieDetails by remember { mutableStateOf<MovieDetails?>(null) }
     var showBottomSheet by remember { mutableStateOf(false) }
+
+    val ratingStatistics by ratedMovieViewModel.ratingStatistics.observeAsState()
+
 
     // Keep status bar icons dark (but UI is dark blue so this is fine)
     val view = LocalView.current
@@ -70,7 +72,10 @@ fun MovieDetails(
             // Keep status bar white/light background
             it.statusBarColor = android.graphics.Color.WHITE
             // Set icons to DARK so they're visible on white background
-            androidx.core.view.WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = true
+            androidx.core.view.WindowCompat.getInsetsController(
+                it,
+                view
+            ).isAppearanceLightStatusBars = true
         }
         onDispose {}
     }
@@ -116,14 +121,16 @@ fun MovieDetails(
                         color = Color.White
                     )
                     Spacer(Modifier.width(130.dp))
-                    ManageMovie(Modifier.padding(12.dp).padding(top = 12.dp),
+                    ManageMovie(
+                        Modifier
+                            .padding(12.dp)
+                            .padding(top = 12.dp),
                         movieId = movieId,
                         posterPath = posterPath,
                         watchlistViewModel = watchlistViewModel,
                         likedListViewModel = likedListViewModel,
                         watchedMoviesViewModel = watchedMoviesViewModel,
-                        ratedMovieViewModel = ratedMovieViewModel,
-                        )
+                    )
                     Spacer(Modifier.width(25.dp))
                 }
 
@@ -149,8 +156,9 @@ fun MovieDetails(
 
             // Manage Movie
             item {
-                ModernManageMovieSection(onClick = { showBottomSheet = true })
+                RatingStatsBar(movieId, ratedMovieViewModel)
                 Spacer(modifier = Modifier.height(24.dp))
+
             }
 
             // Cast
@@ -184,42 +192,44 @@ fun MovieDetails(
 
 
 @Composable
-fun ModernManageMovieSection(onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "Manage Movie",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Add to lists, rate & review",
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                )
+fun RatingStatsBar(
+    movieId: String,
+    ratedMovieViewModel: RatedMovieViewModel,
+) {
+    val currentUserRating by ratedMovieViewModel.currentUserRating.observeAsState(0)
+    val ratingStatistics by ratedMovieViewModel.ratingStatistics.observeAsState()
+
+    LaunchedEffect(movieId) {
+        ratedMovieViewModel.fetchRatingStatistics(movieId)
+        ratedMovieViewModel.fetchUserRating(movieId)
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+
+
+        RatingStatisticsBar(statistics = ratingStatistics)
+
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // User's personal rating
+        Text("Your Rating", fontWeight = FontWeight.SemiBold, color = Color.White)
+
+        RatingBar(
+            modifier = Modifier
+                .size(70.dp)
+                .padding(top = 16.dp),
+            rating = currentUserRating,
+            onRatingChanged = { newRating ->
+                ratedMovieViewModel.updateCurrentMovieRating(newRating)
+            },
+            movieId = movieId,
+            starsColor = Color.Red,
+            saveRating = { id, newRating ->
+                ratedMovieViewModel.ratedMoviesControl(id, newRating)
             }
-            Icon(
-                painter = painterResource(R.drawable.baseline_keyboard_arrow_right_24),
-                contentDescription = "Manage",
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(32.dp)
-            )
-        }
+        )
+
     }
 }
 
@@ -314,7 +324,10 @@ fun BackdropHeader(movie: MovieDetails, onBack: () -> Unit) {
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(containerColor = Color(0xFFF5C518)),
                             modifier = Modifier.clickable {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.imdb.com/title/$imdbId/"))
+                                val intent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://www.imdb.com/title/$imdbId/")
+                                )
                                 context.startActivity(intent)
                             }
                         ) {
@@ -420,7 +433,10 @@ fun CastMemberItem(member: CastMember) {
 }
 
 @Composable
-fun RecommendationsSection(recommendations: List<MoviesRelated>, onMovieClick: (Deliverables) -> Unit) {
+fun RecommendationsSection(
+    recommendations: List<MoviesRelated>,
+    onMovieClick: (Deliverables) -> Unit
+) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Text(
             "You might also like",
@@ -463,8 +479,9 @@ fun RecommendedMovieItem(movie: MoviesRelated, onMovieClick: (Deliverables) -> U
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun TrailerSection(videos: VideosResponse?) {
-    val trailer = videos?.results?.firstOrNull { it.type == "Trailer" && it.site == "YouTube" && it.official }
-        ?: videos?.results?.firstOrNull { it.type == "Trailer" && it.site == "YouTube" }
+    val trailer =
+        videos?.results?.firstOrNull { it.type == "Trailer" && it.site == "YouTube" && it.official }
+            ?: videos?.results?.firstOrNull { it.type == "Trailer" && it.site == "YouTube" }
 
     val context = LocalContext.current
 

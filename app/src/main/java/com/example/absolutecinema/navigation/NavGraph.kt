@@ -35,7 +35,7 @@ fun NavGraph(
     likedMoviesViewModel: LikedMoviesViewModel,
     watchedListViewModel: WatchedMoviesViewModel,
     ratedMovieViewModel: RatedMovieViewModel,
-    firebaseViewModel: FirebaseViewModel
+    firebaseViewModel: FirebaseViewModel,
 ) {
     auth = Firebase.auth
     val startDestination = if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) {
@@ -138,28 +138,8 @@ fun NavGraph(
                 onMovieClick = { movieDeliverables ->
                     navController.navigate(Screen.Details.createRoute(movieDeliverables))
                 },
-                watchlistControl = { movieId, posterPath ->
-                    watchlistViewModel.watchlistControl(movieId, posterPath)
-                },
-                likedListControl = { movieId, posterPath ->
-                    likedMoviesViewModel.likedListControl(movieId, posterPath)
 
-                },
-                watchedListControl = { movieId, posterPath ->
-                    watchedListViewModel.watchedListControl(movieId, posterPath)
-                },
-                ratedListControl = { movieId, rating ->
-                    ratedMovieViewModel.ratedMoviesControl(movieId, rating)
-                },
-//                gotoWatchlist = { movieId, poster ->
-//                    navController.navigate(Screen.Watchlist.createRoute(movieId, poster))
-//                },
-//                gotoLikedList = { movieId, poster ->
-//                    navController.navigate(Screen.LikedList.createRoute(movieId, poster))
-//                },
-//                gotoWatchedList = { movieId, poster ->
-//                    navController.navigate(Screen.Watched.createRoute(deliverables))
-//                }
+
             )
         }
 

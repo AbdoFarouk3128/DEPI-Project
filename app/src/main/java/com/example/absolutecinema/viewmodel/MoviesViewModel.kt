@@ -1,12 +1,13 @@
 package com.example.absolutecinema.viewmodel
 
-import Results
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.absolutecinema.ui.componants.RatingStatistics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 // ✅ FIXED: Added default values for all parameters
 data class WatchlistMovieData(
@@ -37,11 +38,13 @@ class WatchlistMoviesViewModel : ViewModel() {
     val watchlist: LiveData<MutableList<WatchlistMovieData>> = _watchlist
 
     private val firestore = FirebaseFirestore.getInstance()
+
     // ✅ FIXED: Get userId dynamically to support multiple users
     private fun getUserId() = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
 
     // ✅ FIXED: Get user-specific reference
-    private fun getUserWatchlistRef() = firestore.collection("users").document(getUserId()).collection("watchlist")
+    private fun getUserWatchlistRef() =
+        firestore.collection("users").document(getUserId()).collection("watchlist")
 
 //    init {
 //        // Automatically load data when ViewModel is created
@@ -115,7 +118,7 @@ class WatchlistMoviesViewModel : ViewModel() {
             }?.toMutableList()
 
             if (updatedList != null) {
-                _watchlist.value = updatedList
+                _watchlist.value = updatedList!!
                 Log.d("Watchlist", "Realtime update received: ${updatedList.size} movies")
             }
         }
@@ -128,11 +131,13 @@ class LikedMoviesViewModel : ViewModel() {
     val likedList: LiveData<MutableList<LikedMovieData>> = _likedList
 
     private val firestore = FirebaseFirestore.getInstance()
+
     // ✅ FIXED: Get userId dynamically to support multiple users
     private fun getUserId() = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
 
     // ✅ FIXED: Get user-specific reference
-    private fun getUserLikedRef() = firestore.collection("users").document(getUserId()).collection("liked")
+    private fun getUserLikedRef() =
+        firestore.collection("users").document(getUserId()).collection("liked")
 
     // Add or remove movie
     fun likedListControl(movieId: String, posterPath: String) {
@@ -180,11 +185,13 @@ class WatchedMoviesViewModel : ViewModel() {
     val watchedList: LiveData<MutableList<WatchedMovieData>> = _watchedList
 
     private val firestore = FirebaseFirestore.getInstance()
+
     // ✅ FIXED: Get userId dynamically to support multiple users
     private fun getUserId() = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
 
     // ✅ FIXED: Get user-specific reference
-    private fun getUserWatchedRef() = firestore.collection("users").document(getUserId()).collection("watched")
+    private fun getUserWatchedRef() =
+        firestore.collection("users").document(getUserId()).collection("watched")
 
     fun watchedListControl(movieId: String, posterPath: String) {
         val currentList = _watchedList.value ?: mutableListOf()
@@ -224,84 +231,154 @@ class WatchedMoviesViewModel : ViewModel() {
     }
 }
 
+
+// RatedMovieViewModel.kt
 class RatedMovieViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    private val _ratedMovies = MutableLiveData<MutableList<RatedMovieData>>(mutableListOf())
-    val ratedMovies: LiveData<MutableList<RatedMovieData>> = _ratedMovies
+    private val _ratingStatistics = MutableLiveData<RatingStatistics?>(null)
+    val ratingStatistics: LiveData<RatingStatistics?> = _ratingStatistics
 
-    // ✅ FIXED: Get user-specific reference
-    private fun getUserRatedRef() = auth.currentUser?.let { user ->
-        firestore.collection("users").document(user.uid).collection("ratedMovies")
+
+    private val _currentUserRating = MutableLiveData(0)
+    val currentUserRating: LiveData<Int> = _currentUserRating
+
+    private val _ratedMovies = MutableLiveData<List<RatedMovieData>>(emptyList())
+    val ratedMovies: LiveData<List<RatedMovieData>> = _ratedMovies
+    private var statisticsListener: ListenerRegistration? = null
+
+    // Fetch ALL ratings for a specific movie (from ALL users)
+    fun fetchRatingStatistics(movieId: String) {
+        Log.d("RatingStats", "Setting up listener for movie: $movieId")
+
+        // ⭐ Remove old listener first
+        statisticsListener?.remove()
+
+        // ⭐ Store the new listener
+        statisticsListener = firestore.collectionGroup("ratedMovies")
+            .whereEqualTo("movieId", movieId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("RatingStats", "Error fetching ratings: ${error.message}")
+                    return@addSnapshotListener
+                }
+
+                Log.d("RatingStats", "Snapshot received! Documents: ${snapshot?.size()}")
+
+                val ratings = snapshot?.documents?.mapNotNull { doc ->
+                    val rating = doc.getLong("rating")?.toInt()
+                    Log.d(
+                        "RatingStats",
+                        "Doc: ${doc.id}, rating: $rating, movieId: ${doc.getString("movieId")}"
+                    )
+                    rating
+                } ?: emptyList()
+
+                Log.d("RatingStats", "Total ratings: ${ratings.size}, values: $ratings")
+                calculateStatistics(ratings)
+            }
     }
 
-    // --- Add or update rating locally + in Firestore ---
-    fun ratedMoviesControl(movieId: String, rating: Int) {
-        val currentList = _ratedMovies.value ?: mutableListOf()
-        val existingItem = currentList.find { it.movieId == movieId }
-
-        val currentUser = auth.currentUser ?: return
-        val userId = currentUser.uid
-
-        val ratedMoviesRef = firestore.collection("users")
-            .document(userId)
-            .collection("ratedMovies")
-
-        if (rating == 0) {
-            // If rating is 0, remove this movie both locally and in Firestore
-            if (existingItem != null) {
-                currentList.remove(existingItem)
-                ratedMoviesRef.document(movieId)
-                    .delete()
-                    .addOnSuccessListener {
-                        Log.d("RatedMovieViewModel", "Deleted movie with rating 0: $movieId")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("RatedMovieViewModel", "Error deleting movie", e)
-                    }
-            }
-        } else {
-            // If movie exists, update its rating
-            if (existingItem != null) {
-                existingItem.rating = rating
-                ratedMoviesRef.document(movieId)
-                    .update("rating", rating)
-                    .addOnSuccessListener {
-                        Log.d("RatedMovieViewModel", "Updated rating for $movieId to $rating")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("RatedMovieViewModel", "Error updating rating", e)
-                    }
-            } else {
-                // Add new movie locally and remotely
-                val newMovie = RatedMovieData(movieId, rating)
-                currentList.add(newMovie)
-
-                val movieData = hashMapOf(
-                    "movieId" to movieId,
-                    "rating" to rating
-                )
-
-                ratedMoviesRef.document(movieId)
-                    .set(movieData)
-                    .addOnSuccessListener {
-                        Log.d("RatedMovieViewModel", "Added movie $movieId with rating $rating")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("RatedMovieViewModel", "Error adding movie", e)
-                    }
-            }
+    private fun calculateStatistics(ratings: List<Int>) {
+        if (ratings.isEmpty()) {
+            _ratingStatistics.value = RatingStatistics()
+            return
         }
 
-        _ratedMovies.value = currentList
+        val distribution = (1..5).associateWith { star ->
+            ratings.count { it == star }
+        }
+
+        val average = ratings.average().toFloat()
+
+        _ratingStatistics.value = RatingStatistics(
+            averageRating = average,
+            totalRatings = ratings.size,
+            ratingDistribution = distribution
+        )
     }
 
-    fun updateCurrentMovieRating(newRating: Int) {
-        _currentRating.value = newRating
+    // Fetch current user's rating for a specific movie
+    fun fetchUserRating(movieId: String) {
+
+        val userId = auth.currentUser?.uid ?: return
+
+        firestore.collection("users")
+            .document(userId)
+            .collection("ratedMovies")
+            .document(movieId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val rating = document.getLong("rating")?.toInt() ?: 0
+                    _currentUserRating.value = rating
+                } else {
+                    _currentUserRating.value = 0
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("Rating", "Error fetching user rating", e)
+                _currentUserRating.value = 0
+            }
     }
 
-    // --- Fetch all rated movies from Firestore ---
+    // Save or update user's rating
+    fun saveUserRating(movieId: String, rating: Int) {
+        val userId = auth.currentUser?.uid ?: return
+
+        val ratingData = hashMapOf(
+            "movieId" to movieId,
+            "rating" to rating,
+            "timestamp" to System.currentTimeMillis()
+        )
+
+        firestore.collection("users")
+            .document(userId)
+            .collection("ratedMovies")
+            .document(movieId)
+            .set(ratingData)
+            .addOnSuccessListener {
+                _currentUserRating.value = rating
+                Log.d("Rating", "Rating saved successfully")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Rating", "Error saving rating", e)
+            }
+    }
+
+    // Delete a rating
+    fun deleteUserRating(movieId: String) {
+        val userId = auth.currentUser?.uid ?: return
+
+        firestore.collection("users")
+            .document(userId)
+            .collection("ratedMovies")
+            .document(movieId)
+            .delete()
+            .addOnSuccessListener {
+                _currentUserRating.value = 0
+                Log.d("Rating", "Rating deleted successfully")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Rating", "Error deleting rating", e)
+            }
+    }
+
+
+    // Alternative method if you already have this
+    fun ratedMoviesControl(movieId: String, rating: Int) {
+        if (rating > 0) {
+            saveUserRating(movieId, rating)
+        } else {
+            deleteUserRating(movieId)
+        }
+    }
+
+    fun updateCurrentMovieRating(rating: Int) {
+        _currentUserRating.value = rating
+    }
+
     fun fetchRatedMovies() {
         val currentUser = auth.currentUser ?: return
         val userId = currentUser.uid
@@ -326,35 +403,5 @@ class RatedMovieViewModel : ViewModel() {
             }
     }
 
-    // Inside RatedMovieViewModel
-    private val _currentRating = MutableLiveData<Int>()
-    val currentRating: LiveData<Int> = _currentRating
 
-    fun fetchMovieRating(movieId: String) {
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
-            Log.e("RatedMovieViewModel", "User not authenticated")
-            _currentRating.value = 0  // Default to 0 if not authenticated
-            return
-        }
-
-        firestore.collection("users")
-            .document(currentUser.uid)
-            .collection("ratedMovies")
-            .document(movieId)
-            .get()
-            .addOnSuccessListener { document ->
-                val rating = if (document.exists()) {
-                    document.getLong("rating")?.toInt() ?: 0
-                } else {
-                    0  // No rating found for this movie
-                }
-                _currentRating.value = rating
-                Log.d("RatedMovieViewModel", "Fetched rating for $movieId: $rating")
-            }
-            .addOnFailureListener { e ->
-                Log.e("RatedMovieViewModel", "Error fetching rating for $movieId", e)
-                _currentRating.value = 0  // Default to 0 on error
-            }
-    }
 }

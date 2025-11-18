@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
                             likedMoviesViewModel = likedListViewModel,
                             watchedListViewModel = watchedListViewModel,
                             ratedMovieViewModel = ratedMovieViewModel,
-                            firebaseViewModel = firebaseViewModel
+                            firebaseViewModel = firebaseViewModel,
                         )
                     }
                 }
