@@ -1,4 +1,4 @@
-package com.example.absolutecinema.data
+package com.example.absolutecinema.data.api
 
 import com.google.gson.annotations.SerializedName
 

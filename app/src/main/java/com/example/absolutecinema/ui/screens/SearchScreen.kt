@@ -1,6 +1,6 @@
 package com.example.absolutecinema.ui.screens
 
-import com.example.absolutecinema.data.Results
+import com.example.absolutecinema.data.api.Results
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,10 +25,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.absolutecinema.data.Genre
-import com.example.absolutecinema.data.discoverMoviesByGenre
-import com.example.absolutecinema.data.getPopularMovies
-import com.example.absolutecinema.data.searchForMovie
+import com.example.absolutecinema.data.api.Genre
+import com.example.absolutecinema.data.api.discoverMoviesByGenre
+import com.example.absolutecinema.data.api.getPopularMovies
+import com.example.absolutecinema.data.api.searchForMovie
 import com.example.absolutecinema.navigation.Deliverables
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.GenreViewModel

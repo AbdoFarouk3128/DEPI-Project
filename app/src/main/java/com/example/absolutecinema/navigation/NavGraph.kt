@@ -97,6 +97,9 @@ fun NavGraph(
                 goToMovies = {index->
                     navController.navigate(Screen.Topic.createRoute(index))
                 },
+                time = {
+
+                },
                 firebaseViewModel = firebaseViewModel
             )
         }

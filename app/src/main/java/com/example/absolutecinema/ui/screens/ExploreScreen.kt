@@ -1,6 +1,6 @@
 package com.example.absolutecinema.ui.screens
 
-import com.example.absolutecinema.data.Results
+import com.example.absolutecinema.data.api.Results
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,10 +34,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.absolutecinema.data.getNowPlayingMovies
-import com.example.absolutecinema.data.getPopularMovies
-import com.example.absolutecinema.data.getTopRatedMovies
-import com.example.absolutecinema.data.getUpcomingMovies
+import com.example.absolutecinema.data.api.getMoviesOnDate
+import com.example.absolutecinema.data.api.getNowPlayingMovies
+import com.example.absolutecinema.data.api.getPopularMovies
+import com.example.absolutecinema.data.api.getTopRatedMovies
+import com.example.absolutecinema.data.api.getUpcomingMovies
+import com.example.absolutecinema.data.helpers.Season
 import com.example.absolutecinema.navigation.Deliverables
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
@@ -47,12 +49,15 @@ fun ExploreScreen(
     onMovieClick: (Deliverables) -> Unit,
     goToMovies: (Int) -> Unit,
     firebaseViewModel: FirebaseViewModel,
+    time:(String)->Unit,
 ) {
 
     var topRatedMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
     var upcomingMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
     var popularMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
     var nowPlayingMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
+    var seasonMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
+
 
     val firstName by firebaseViewModel.firstName.observeAsState("")
 
@@ -64,13 +69,16 @@ fun ExploreScreen(
         getNowPlayingMovies { nowPlayingMovies = it }
         getUpcomingMovies { upcomingMovies = it }
         getTopRatedMovies { topRatedMovies = it }
+        getMoviesOnDate(Season()) { seasonMovies = it }
+
     }
 
 
     val isLoading = popularMovies.isEmpty() ||
             nowPlayingMovies.isEmpty() ||
             upcomingMovies.isEmpty() ||
-            topRatedMovies.isEmpty()
+            topRatedMovies.isEmpty()||
+            seasonMovies.isEmpty()
 
     if (isLoading) {
         Box(
@@ -108,11 +116,7 @@ fun ExploreScreen(
                     color = Color.White,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
-//                Image(
-//                    painterResource(R.drawable.pocorn),
-//                    contentDescription = "Popcorn",
-//                    modifier = Modifier.size(35.dp)
-//                )
+
             }
 
             TopicList(
@@ -141,6 +145,13 @@ fun ExploreScreen(
                 movies = topRatedMovies,
                 onMovieClick = onMovieClick,
                 index = 4,
+                goToMovies = goToMovies
+            )
+            TopicList(
+                "This Month’s Picks",
+                movies = seasonMovies,
+                onMovieClick = onMovieClick,
+                index = 5,
                 goToMovies = goToMovies
             )
         }

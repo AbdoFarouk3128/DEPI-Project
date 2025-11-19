@@ -1,6 +1,6 @@
 package com.example.absolutecinema.ui.screens
 
-import com.example.absolutecinema.data.Results
+import com.example.absolutecinema.data.api.Results
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,10 +36,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.absolutecinema.data.getNowPlayingMovies
-import com.example.absolutecinema.data.getPopularMovies
-import com.example.absolutecinema.data.getTopRatedMovies
-import com.example.absolutecinema.data.getUpcomingMovies
+import com.example.absolutecinema.data.api.getMoviesOnDate
+import com.example.absolutecinema.data.api.getNowPlayingMovies
+import com.example.absolutecinema.data.api.getPopularMovies
+import com.example.absolutecinema.data.api.getTopRatedMovies
+import com.example.absolutecinema.data.api.getUpcomingMovies
+import com.example.absolutecinema.data.helpers.Season
 import com.example.absolutecinema.navigation.Deliverables
 import com.example.absolutecinema.ui.theme.darkBlue
 
@@ -76,6 +78,15 @@ fun TopicScreen(
                     movies = result
                     isLoading = false
                     topicName="Top Rated"
+                }
+                5->{
+                    getMoviesOnDate(Season()){result ->
+                        movies = result
+                        isLoading = false
+                        topicName="This Month’s Picks"
+
+                    }
+
                 }
             }
         }

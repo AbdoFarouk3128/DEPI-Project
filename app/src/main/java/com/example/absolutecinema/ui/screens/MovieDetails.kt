@@ -34,11 +34,11 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.R
 import com.example.absolutecinema.navigation.Deliverables
-import com.example.absolutecinema.data.CastMember
-import com.example.absolutecinema.data.MovieDetails
-import com.example.absolutecinema.data.MoviesRelated
-import com.example.absolutecinema.data.VideosResponse
-import com.example.absolutecinema.data.getMovieDetails
+import com.example.absolutecinema.data.api.CastMember
+import com.example.absolutecinema.data.api.MovieDetails
+import com.example.absolutecinema.data.api.MoviesRelated
+import com.example.absolutecinema.data.api.VideosResponse
+import com.example.absolutecinema.data.api.getMovieDetails
 import com.example.absolutecinema.ui.componants.BottomSheet
 import com.example.absolutecinema.ui.componants.ManageMovie
 import com.example.absolutecinema.ui.componants.RatingBar

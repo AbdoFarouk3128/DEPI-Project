@@ -1,9 +1,10 @@
-package com.example.absolutecinema.data
+package com.example.absolutecinema.data.api
 
 import com.google.gson.annotations.SerializedName
 
 data class Cinema(
-    val results: ArrayList<Results>
+    val results: ArrayList<Results>,
+    val keywords:ArrayList<Keywords>
 )
 
 data class Results(
@@ -32,4 +33,7 @@ data class Trailer(
 data class Links(
     @SerializedName("key")
     val key: String
+)
+data class Keywords(
+    val id:String
 )

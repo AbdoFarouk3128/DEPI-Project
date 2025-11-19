@@ -1,12 +1,21 @@
-package com.example.absolutecinema.data
+package com.example.absolutecinema.data.api
 
+import android.util.Log
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-// --- Unchanged Functions ---
+// Reusable Retrofit instance for MovieCallable
+private val movieRetrofit = Retrofit.Builder()
+    .baseUrl("https://api.themoviedb.org/3/")
+    .addConverterFactory(GsonConverterFactory.create())
+    .build()
+
+private val movieCallable = movieRetrofit.create(MovieCallable::class.java)
+private val cinemaCallable = movieRetrofit.create(CinemaCallable::class.java)
+
 fun getNowPlayingMovies(onResult: (List<Results>) -> Unit) {
     cinemaCallable.getNowPlaying().enqueue(object : Callback<Cinema> {
         override fun onResponse(call: Call<Cinema>, response: Response<Cinema>) {
@@ -22,6 +31,7 @@ fun getNowPlayingMovies(onResult: (List<Results>) -> Unit) {
         }
     })
 }
+
 fun getPopularMovies(onResult: (List<Results>) -> Unit) {
     cinemaCallable.getPopular().enqueue(object : Callback<Cinema> {
         override fun onResponse(call: Call<Cinema>, response: Response<Cinema>) {
@@ -40,6 +50,7 @@ fun getPopularMovies(onResult: (List<Results>) -> Unit) {
         }
     })
 }
+
 fun getTopRatedMovies(onResult: (List<Results>) -> Unit) {
     cinemaCallable.getTopRated().enqueue(object : Callback<Cinema> {
         override fun onResponse(call: Call<Cinema>, response: Response<Cinema>) {
@@ -55,6 +66,7 @@ fun getTopRatedMovies(onResult: (List<Results>) -> Unit) {
         }
     })
 }
+
 fun getUpcomingMovies(onResult: (List<Results>) -> Unit) {
     cinemaCallable.getUpcoming().enqueue(object : Callback<Cinema> {
         override fun onResponse(call: Call<Cinema>, response: Response<Cinema>) {
@@ -88,17 +100,6 @@ fun getDetails(movieId:String,onResult: (Results?) -> Unit){
         }
     })
 }
-
-// --- Updated getMovieDetails Function ---
-
-// Reusable Retrofit instance for MovieCallable
-private val movieRetrofit = Retrofit.Builder()
-    .baseUrl("https://api.themoviedb.org/3/")
-    .addConverterFactory(GsonConverterFactory.create())
-    .build()
-
-private val movieCallable = movieRetrofit.create(MovieCallable::class.java)
-private val cinemaCallable = movieRetrofit.create(CinemaCallable::class.java)
 
 fun getMovieDetails(movieId: String, onResult: (MovieDetails?) -> Unit) {
     movieCallable.getMovieDetails(movieId).enqueue(object : Callback<MovieDetails> {
@@ -191,5 +192,23 @@ fun discoverMoviesByGenre(genreIds: String, onResult: (List<Results>) -> Unit) {
         override fun onFailure(call: Call<Cinema>, t: Throwable) {
             onResult(emptyList())
         }
+    })
+}
+
+
+fun getMoviesOnDate( params:String,onResult: (List<Results>) -> Unit){
+    cinemaCallable.getMovie(keywords = params).enqueue(object :Callback<Cinema>{
+        override fun onResponse(call: Call<Cinema>, response: Response<Cinema>) {
+            Log.e("API_ERROR", "code=${response.code()} | error=${response.errorBody()?.string()}")
+
+            val cinema = response.body()
+            val movies = cinema?.results!!
+            onResult(movies)
+        }
+
+        override fun onFailure(call: Call<Cinema>, t: Throwable) {
+
+        }
+
     })
 }
