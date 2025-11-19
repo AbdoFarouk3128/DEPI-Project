@@ -1,3 +1,5 @@
+package com.example.absolutecinema.data
+
 import com.google.gson.annotations.SerializedName
 
 data class Cinema(

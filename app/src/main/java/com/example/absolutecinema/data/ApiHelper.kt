@@ -1,7 +1,5 @@
 package com.example.absolutecinema.data
 
-import Cinema
-import Results
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

@@ -1,7 +1,7 @@
 package com.example.absolutecinema.ui.screens
 
 
-import Results
+import com.example.absolutecinema.data.Results
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

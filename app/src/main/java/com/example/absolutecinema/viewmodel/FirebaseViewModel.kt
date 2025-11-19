@@ -16,13 +16,7 @@ import android.graphics.BitmapFactory
 import java.io.ByteArrayOutputStream
 import android.util.Base64
 
-data class UserProfile(
-    val firstName: String = "",
-    val secondName: String = "",
-    val email: String = "",
-    val birthday: String = "",
-    val profileImageUrl: String = ""
-)
+
 
 class FirebaseViewModel : ViewModel() {
     val auth: FirebaseAuth = FirebaseAuth.getInstance()

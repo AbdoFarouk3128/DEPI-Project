@@ -1,6 +1,5 @@
 package com.example.absolutecinema.navigation
 
-import Results
 import java.net.URLEncoder
 
 sealed class Screen(val route: String) {
