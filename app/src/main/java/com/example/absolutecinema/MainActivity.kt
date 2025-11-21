@@ -1,20 +1,38 @@
 package com.example.absolutecinema
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.absolutecinema.data.helpers.createNotificationChannel
+import com.example.absolutecinema.data.helpers.scheduleDailyNotification
+import com.example.absolutecinema.data.helpers.sendNotification
 import com.example.absolutecinema.navigation.NavGraph
 import com.example.absolutecinema.ui.componants.BottomNavigationBar
+import com.example.absolutecinema.ui.screens.ExploreScreen
 import com.example.absolutecinema.ui.theme.AbsoluteCinemaTheme
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
@@ -23,8 +41,12 @@ import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
 
 class MainActivity : ComponentActivity() {
+    var isDialogShown= mutableStateOf(false)
     override fun onCreate(savedInstanceState: Bundle?) {
+        val requestHandler = handlePermissionRequest(this)
+
         super.onCreate(savedInstanceState)
+        createNotificationChannel(this)
         setContent {
             AbsoluteCinemaTheme {
                 val navController = rememberNavController()
@@ -42,6 +64,11 @@ class MainActivity : ComponentActivity() {
                 val dontShowBottomBar = when (currentRoute) {
                     "signup", "login" -> true
                     else -> false
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    requestHandler.launch(Manifest.permission.POST_NOTIFICATIONS)
+                else {
+                    scheduleDailyNotification(this)
                 }
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -72,5 +99,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    fun handlePermissionRequest(context: Context): ActivityResultLauncher<String> {
+        val handler = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) {
+                scheduleDailyNotification(context)
+            } else {
+                isDialogShown.value=true
+            }
+        }
+        return handler
     }
 }
