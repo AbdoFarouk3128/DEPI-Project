@@ -196,14 +196,14 @@ fun discoverMoviesByGenre(genreIds: String, onResult: (List<Results>) -> Unit) {
 }
 
 
-fun getMoviesOnDate( params:String,onResult: (List<Results>) -> Unit){
-    cinemaCallable.getMovie(keywords = params).enqueue(object :Callback<Cinema>{
+fun getMoviesOnDate(todayPage:Int,onResult: (List<Results>) -> Unit){
+    cinemaCallable.getMovie(page = todayPage).enqueue(object :Callback<Cinema>{
         override fun onResponse(call: Call<Cinema>, response: Response<Cinema>) {
-            Log.e("API_ERROR", "code=${response.code()} | error=${response.errorBody()?.string()}")
-
             val cinema = response.body()
             val movies = cinema?.results!!
-            onResult(movies)
+            val filtered = movies.filter { it.poster != null }
+
+            onResult(filtered)
         }
 
         override fun onFailure(call: Call<Cinema>, t: Throwable) {

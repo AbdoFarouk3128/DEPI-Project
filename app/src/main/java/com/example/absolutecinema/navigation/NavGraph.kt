@@ -132,7 +132,6 @@ fun NavGraph(
             MovieDetails(
                 movieId = deliverables.movieId,
                 posterPath = deliverables.poster,
-                title = deliverables.title,
                 watchlistViewModel = watchlistViewModel,
                 likedListViewModel = likedMoviesViewModel,
                 watchedMoviesViewModel = watchedListViewModel,

@@ -1,6 +1,6 @@
 package com.example.absolutecinema.ui.screens
 
-import com.example.absolutecinema.data.api.Results
+import android.graphics.drawable.Drawable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,64 +36,73 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
+import com.example.absolutecinema.data.api.Results
 import com.example.absolutecinema.data.api.getMoviesOnDate
 import com.example.absolutecinema.data.api.getNowPlayingMovies
 import com.example.absolutecinema.data.api.getPopularMovies
 import com.example.absolutecinema.data.api.getTopRatedMovies
 import com.example.absolutecinema.data.api.getUpcomingMovies
-import com.example.absolutecinema.data.helpers.Season
+import com.example.absolutecinema.data.helpers.randomNumber
 import com.example.absolutecinema.navigation.Deliverables
 import com.example.absolutecinema.ui.theme.darkBlue
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun TopicScreen(
-    onMovieClick:(Deliverables)->Unit,
-    index:Int,
-    goBack:()->Unit,
-)
-{
+    onMovieClick: (Deliverables) -> Unit,
+    index: Int,
+    goBack: () -> Unit,
+) {
     var movies by remember { mutableStateOf<List<Results>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var topicName by remember { mutableStateOf("") }
     LaunchedEffect(index) {
         isLoading = true
-            when (index) {
-                1 -> getPopularMovies { result ->
-                    movies = result
-                    isLoading = false
-                    topicName="Popular"
-                }
-                2 -> getNowPlayingMovies { result ->
-                    movies = result
-                    isLoading = false
-                    topicName="Now Playing"
-                }
-                3 -> getUpcomingMovies { result ->
-                    movies = result
-                    isLoading = false
-                    topicName="Upcoming"
-                }
-                4 -> getTopRatedMovies { result ->
-                    movies = result
-                    isLoading = false
-                    topicName="Top Rated"
-                }
-                5->{
-                    getMoviesOnDate(Season()){result ->
-                        movies = result
-                        isLoading = false
-                        topicName="This Month’s Picks"
+        when (index) {
+            1 -> getPopularMovies { result ->
+                movies = result
+                isLoading = false
+                topicName = "Popular"
+            }
 
-                    }
+            2 -> getNowPlayingMovies { result ->
+                movies = result
+                isLoading = false
+                topicName = "Now Playing"
+            }
+
+            3 -> getUpcomingMovies { result ->
+                movies = result
+                isLoading = false
+                topicName = "Upcoming"
+            }
+
+            4 -> getTopRatedMovies { result ->
+                movies = result
+                isLoading = false
+                topicName = "Top Rated"
+            }
+
+            5 -> {
+                getMoviesOnDate(randomNumber()) { result ->
+                    movies = result
+                    isLoading = false
+                    topicName = "Today’s Must-Watch"
 
                 }
+
             }
         }
+    }
 
 
-    Column(modifier = Modifier.fillMaxSize().background(darkBlue)) {
-
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(darkBlue)) {
 
 
         if (isLoading) {
@@ -112,11 +121,12 @@ fun TopicScreen(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Go Back",
                     tint = Color.White,
-                    modifier = Modifier.padding(12.dp)
+                    modifier = Modifier
+                        .padding(12.dp)
                         .size(28.dp)
                         .clickable {
-                        goBack()
-                    }
+                            goBack()
+                        }
                 )
                 Text(
                     topicName,
@@ -137,7 +147,9 @@ fun TopicScreen(
                         GlideImage(
                             model = "https://image.tmdb.org/t/p/w500${movie.poster}",
                             contentDescription = movie.title,
+
                             contentScale = ContentScale.Crop,
+
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(0.7f)
@@ -150,7 +162,37 @@ fun TopicScreen(
                                         title = movie.title
                                     )
                                     onMovieClick(deliverable)
-                                }
+                                },
+                            requestBuilderTransform = { request ->
+
+                                request
+                                    .timeout(15_000)        // allow slow networks
+                                    .dontAnimate()          // speeds up loading
+                                    .listener(object : RequestListener<Drawable> {
+
+                                        override fun onLoadFailed(
+                                            e: GlideException?,
+                                            model: Any?,
+                                            target: Target<Drawable>?,
+                                            isFirstResource: Boolean
+                                        ): Boolean {
+                                            target?.request?.clear()     // clear failed request
+                                            request.clone().into(target!!) // retry
+                                            return true
+                                        }
+
+                                        override fun onResourceReady(
+                                            resource: Drawable?,
+                                            model: Any?,
+                                            target: Target<Drawable>?,
+                                            dataSource: DataSource?,
+                                            isFirstResource: Boolean
+                                        ): Boolean {
+                                            return false
+                                        }
+                                    })
+                            }
+
                         )
                     }
                 }

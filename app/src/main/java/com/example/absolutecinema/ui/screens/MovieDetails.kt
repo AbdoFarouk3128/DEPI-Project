@@ -50,7 +50,6 @@ import com.example.absolutecinema.viewmodel.*
 fun MovieDetails(
     movieId: String,
     posterPath: String,
-    title: String,
     watchlistViewModel: WatchlistMoviesViewModel,
     likedListViewModel: LikedMoviesViewModel,
     watchedMoviesViewModel: WatchedMoviesViewModel,
@@ -59,7 +58,6 @@ fun MovieDetails(
     onMovieClick: (Deliverables) -> Unit,
 ) {
     var movieDetails by remember { mutableStateOf<MovieDetails?>(null) }
-    var showBottomSheet by remember { mutableStateOf(false) }
 
     val ratingStatistics by ratedMovieViewModel.ratingStatistics.observeAsState()
 
@@ -86,17 +84,7 @@ fun MovieDetails(
         }
     }
 
-    if (showBottomSheet) {
-        BottomSheet(
-            movieId = movieId,
-            posterPath = posterPath,
-            watchlistViewModel = watchlistViewModel,
-            likedListViewModel = likedListViewModel,
-            watchedMoviesViewModel = watchedMoviesViewModel,
-            ratedMovieViewModel = ratedMovieViewModel,
-            onDismiss = { showBottomSheet = false }
-        )
-    }
+
 
     LazyColumn(
         modifier = Modifier

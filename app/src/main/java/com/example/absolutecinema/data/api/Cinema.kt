@@ -21,6 +21,8 @@ data class Results(
     val date: String,
     var isWatched: Boolean = false,
     val adult: Boolean,
+    val vote_average:Double,
+    val vote_count:Double,
 //    @SerializedName("vote_average")
 //    val rating:String,
 )

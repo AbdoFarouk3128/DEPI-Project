@@ -9,16 +9,22 @@ interface CinemaCallable {
     companion object {
         const val API_KEY = "d997190299b8c60ad08ef02b0dc4c804"
     }
+
     @GET("discover/movie")
     fun getMovie(
         @Query("include_adult") adult: Boolean = false,
         @Query("include_video") includeVideo: Boolean = false,
         @Query("language") language: String = "en-US",
-        @Query("page") page: Int = 1,
+        @Query("page") page: Int,
+        @Query("with_original_language") lang:String="en",
+        @Query("primary_release_date.gte") date:String="2000-1-1",
+        @Query("vote_count.gte") voteCount:Int=50,
+        @Query("without_genres") genre:String="99,10402",
+        @Query("vote_average.gte") voteAverageMin: Double = 7.0,
         @Query("sort_by") sortBy: String = "popularity.desc",
-        @Query("with_keywords", encoded = true) keywords: String,
         @Query("api_key") apiKey: String = API_KEY
     ): Call<Cinema>
+
     @GET("movie/{id}")
     fun getDetails(
         @Path("id") id: String,
@@ -55,12 +61,12 @@ interface CinemaCallable {
     ): Call<Cinema>
 
     @GET("movie/{id}/videos?api_key=d997190299b8c60ad08ef02b0dc4c804")
-    fun getVid(@Path("id") id:String):Call<Trailer>
+    fun getVid(@Path("id") id: String): Call<Trailer>
 
     @GET("search/movie")
     fun searchForMovieByTitle(
         @Query("query") text: String,
-        @Query("api_key") key : String = API_KEY
+        @Query("api_key") key: String = API_KEY
     ):
             Call<Cinema>
 
@@ -68,14 +74,14 @@ interface CinemaCallable {
     fun discoverMovie(
         @Query("with_genres") genreId: String = "",
         @Query("year") year: Int? = null,
-        @Query("api_key") key : String = API_KEY
+        @Query("api_key") key: String = API_KEY
     ):
             Call<Cinema>
 
     @GET("genre/movie/list")
     fun getMovieGenres(
         @Query("language") language: String = "en",
-        @Query("api_key") key : String = API_KEY
+        @Query("api_key") key: String = API_KEY
     ):
             Call<GenreResponse>
 }

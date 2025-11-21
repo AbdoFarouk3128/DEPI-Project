@@ -1,6 +1,5 @@
 package com.example.absolutecinema.ui.screens
 
-import com.example.absolutecinema.data.api.Results
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,12 +33,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.absolutecinema.data.api.Results
 import com.example.absolutecinema.data.api.getMoviesOnDate
 import com.example.absolutecinema.data.api.getNowPlayingMovies
 import com.example.absolutecinema.data.api.getPopularMovies
 import com.example.absolutecinema.data.api.getTopRatedMovies
 import com.example.absolutecinema.data.api.getUpcomingMovies
-import com.example.absolutecinema.data.helpers.Season
+import com.example.absolutecinema.data.helpers.randomNumber
 import com.example.absolutecinema.navigation.Deliverables
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
@@ -69,7 +69,7 @@ fun ExploreScreen(
         getNowPlayingMovies { nowPlayingMovies = it }
         getUpcomingMovies { upcomingMovies = it }
         getTopRatedMovies { topRatedMovies = it }
-        getMoviesOnDate(Season()) { seasonMovies = it }
+        getMoviesOnDate(randomNumber()) { seasonMovies = it }
 
     }
 
@@ -118,6 +118,13 @@ fun ExploreScreen(
                 )
 
             }
+            TopicList(
+                "Today’s Must-Watch",
+                movies = seasonMovies,
+                onMovieClick = onMovieClick,
+                index = 5,
+                goToMovies = goToMovies
+            )
 
             TopicList(
                 "Popular",
@@ -147,13 +154,7 @@ fun ExploreScreen(
                 index = 4,
                 goToMovies = goToMovies
             )
-            TopicList(
-                "This Month’s Picks",
-                movies = seasonMovies,
-                onMovieClick = onMovieClick,
-                index = 5,
-                goToMovies = goToMovies
-            )
+
         }
     }
 
