@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
@@ -39,11 +40,12 @@ import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
 import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
+import android.net.Uri
 
 class MainActivity : ComponentActivity() {
     var isDialogShown= mutableStateOf(false)
     override fun onCreate(savedInstanceState: Bundle?) {
-        val requestHandler = handlePermissionRequest(this)
+        val requestHandler = handlePermissionRequest()
 
         super.onCreate(savedInstanceState)
         createNotificationChannel(this)
@@ -55,7 +57,6 @@ class MainActivity : ComponentActivity() {
                 val likedListViewModel: LikedMoviesViewModel = viewModel()
                 val watchedListViewModel: WatchedMoviesViewModel = viewModel()
                 val ratedMovieViewModel: RatedMovieViewModel = viewModel()
-
                 // ✅ Observe auth state from LiveData - automatically updates!
                 val isUserLoggedIn by firebaseViewModel.isLoggedIn.observeAsState(initial = false)
 
@@ -94,18 +95,23 @@ class MainActivity : ComponentActivity() {
                             watchedListViewModel = watchedListViewModel,
                             ratedMovieViewModel = ratedMovieViewModel,
                             firebaseViewModel = firebaseViewModel,
+                            context = LocalContext.current
                         )
                     }
                 }
             }
         }
+        // ATTENTION: This was auto-generated to handle app links.
+        val appLinkIntent: Intent = intent
+        val appLinkAction: String? = appLinkIntent.action
+        val appLinkData: Uri? = appLinkIntent.data
     }
-    fun handlePermissionRequest(context: Context): ActivityResultLauncher<String> {
+    fun handlePermissionRequest(): ActivityResultLauncher<String> {
         val handler = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
             if (isGranted) {
-                scheduleDailyNotification(context)
+                scheduleDailyNotification(this)
             } else {
                 isDialogShown.value=true
             }

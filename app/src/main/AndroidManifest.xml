@@ -8,8 +8,8 @@
     <uses-permission
         android:name="android.permission.POST_NOTIFICATIONS"
         android:minSdkVersion="33" />
-<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -26,15 +26,24 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.AbsoluteCinema">
-            <intent-filter>
+            <tools:validation testUrl="https://movie-discovery-app-1fc65.web.app" />
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="https"
+                    android:host="movie-discovery-app-1fc65.web.app" />
             </intent-filter>
         </activity>
         <receiver
             android:name=".data.helpers.NotificationReceiver"
-            android:exported="true" />
+            android:exported="true"
+            tools:ignore="Instantiatable" />
     </application>
 
 </manifest>

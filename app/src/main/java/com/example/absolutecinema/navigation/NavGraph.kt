@@ -1,11 +1,22 @@
 package com.example.absolutecinema.navigation
 
+import android.content.Context
+import android.util.Log
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
+import com.example.absolutecinema.data.helpers.shareMovie
 import com.example.absolutecinema.ui.screens.ExploreScreen
 import com.example.absolutecinema.ui.screens.HomeScreen
 import com.example.absolutecinema.ui.screens.ListsScreen
@@ -13,6 +24,7 @@ import com.example.absolutecinema.ui.screens.Login
 import com.example.absolutecinema.ui.screens.MovieDetails
 import com.example.absolutecinema.ui.screens.ProfileScreen
 import com.example.absolutecinema.ui.screens.SignUP
+import com.example.absolutecinema.ui.screens.SplashScreen
 import com.example.absolutecinema.ui.screens.TopicScreen
 import com.example.absolutecinema.ui.screens.UserListsScreen
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
@@ -25,6 +37,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.gson.Gson
 import java.net.URLDecoder
+import java.net.URLEncoder
 
 private lateinit var auth: FirebaseAuth
 
@@ -36,9 +49,11 @@ fun NavGraph(
     watchedListViewModel: WatchedMoviesViewModel,
     ratedMovieViewModel: RatedMovieViewModel,
     firebaseViewModel: FirebaseViewModel,
+    context: Context
 ) {
     auth = Firebase.auth
     val startDestination = if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) {
+//        "splash"
         Screen.Explore.route
     } else {
         Screen.Login.route
@@ -48,12 +63,12 @@ fun NavGraph(
         startDestination = startDestination,
     ) {
         composable(Screen.Home.route) {
-        HomeScreen (
-            onMovieClick = { deliverable ->
-                navController.navigate(Screen.Details.createRoute(deliverable))
-            }
-        )
-    }
+            HomeScreen(
+                onMovieClick = { deliverable ->
+                    navController.navigate(Screen.Details.createRoute(deliverable))
+                }
+            )
+        }
         //lists screen
         composable(route = Screen.Lists.route) { backStackEntry ->
             ListsScreen(
@@ -69,18 +84,44 @@ fun NavGraph(
                 }
             )
         }
-        composable(Screen.UserLists.route,
-            arguments = listOf(navArgument("listType"){
-                type=NavType.StringType
+
+
+//            // 1) Normal launch route
+//            composable("splash") {
+//                SplashScreen("")
+//            }
+//
+//            // 2) Deep link route
+//            composable(
+//                route = "splash/{id}",
+//                arguments = listOf(
+//                    navArgument("id") { type = NavType.StringType }
+//                ),
+////                deepLinks = listOf(
+////                    navDeepLink {
+////                        uriPattern = "https://www.absolute-cinema-app.com/{id}"
+////                    }
+////                )
+//            ) { backStackEntry ->
+//                val id = backStackEntry.arguments?.getString("id") ?: "no id"
+//                SplashScreen(id)
+//            }
+
+
+
+        composable(
+            Screen.UserLists.route,
+            arguments = listOf(navArgument("listType") {
+                type = NavType.StringType
             })
-            )
+        )
         { backStackEntry ->
             UserListsScreen(
                 ratedMovieViewModel = ratedMovieViewModel,
                 likedMoviesViewModel = likedMoviesViewModel,
                 watchedMoviesViewModel = watchedListViewModel,
                 watchlistMoviesViewModel = watchlistViewModel,
-                listType = backStackEntry.arguments?.getString("listType")?:"",
+                listType = backStackEntry.arguments?.getString("listType") ?: "",
                 goBack = {
                     navController.popBackStack()
                 }
@@ -91,10 +132,10 @@ fun NavGraph(
         }
         composable(route = Screen.Explore.route) {
             ExploreScreen(
-                onMovieClick =  { deliverables ->
+                onMovieClick = { deliverables ->
                     navController.navigate(Screen.Details.createRoute(deliverables))
                 },
-                goToMovies = {index->
+                goToMovies = { index ->
                     navController.navigate(Screen.Topic.createRoute(index))
                 },
                 time = {
@@ -104,14 +145,15 @@ fun NavGraph(
             )
         }
         //from here
-        composable(route = Screen.Topic.route,
+        composable(
+            route = Screen.Topic.route,
             arguments = listOf(navArgument("index") { type = NavType.IntType })
         ) { backStackEntry ->
             TopicScreen(
                 onMovieClick = { deliverables ->
                     navController.navigate(Screen.Details.createRoute(deliverables))
                 },
-                index = backStackEntry.arguments?.getInt("index")?:0,
+                index = backStackEntry.arguments?.getInt("index") ?: 0,
                 goBack = {
                     navController.popBackStack()
                 }
@@ -122,13 +164,19 @@ fun NavGraph(
         //  Movie details screen
         composable(
             route = Screen.Details.route,
-            arguments = listOf(navArgument("deliverables") { type = NavType.StringType }
+            arguments = listOf(
+                navArgument("deliverables") { type = NavType.StringType },
+            ),
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "https://movie-discovery-app-1fc65.web.app/{deliverables}"
+                }
             )
         ) { backStackEntry ->
             val encodedJson = backStackEntry.arguments?.getString("deliverables") ?: ""
             val json = URLDecoder.decode(encodedJson, "UTF-8")
             val deliverables = Gson().fromJson(json, Deliverables::class.java)
-
+            Log.d("del","$deliverables")
             MovieDetails(
                 movieId = deliverables.movieId,
                 posterPath = deliverables.poster,
@@ -140,6 +188,11 @@ fun NavGraph(
                 onMovieClick = { movieDeliverables ->
                     navController.navigate(Screen.Details.createRoute(movieDeliverables))
                 },
+                share = {
+                    val encoded = URLEncoder.encode(json, "UTF-8")
+                    val deepLink = "https://movie-discovery-app-1fc65.web.app/$encoded"
+                    shareMovie(context, deepLink)
+                }
 
 
             )
