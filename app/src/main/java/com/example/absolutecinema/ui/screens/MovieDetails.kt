@@ -43,7 +43,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -125,7 +127,10 @@ fun MovieDetails(
             // About Section
             item {
                 Spacer(modifier = Modifier.height(24.dp))
-                Row {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.padding(12.dp).fillParentMaxWidth()
+                ) {
 
                     Text(
                         text = "About the Movie",
@@ -134,7 +139,6 @@ fun MovieDetails(
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
-                    Spacer(Modifier.width(130.dp))
                     ManageMovie(
                         Modifier
                             .padding(12.dp)
@@ -145,7 +149,7 @@ fun MovieDetails(
                         likedListViewModel = likedListViewModel,
                         watchedMoviesViewModel = watchedMoviesViewModel,
                     )
-                    Spacer(Modifier.width(25.dp))
+//                    Spacer(Modifier.width(25.dp))
                 }
 
 
@@ -286,12 +290,11 @@ fun BackdropHeader(movie: MovieDetails, onBack: () -> Unit, share: () -> Unit) {
         // Back button - simple positioning
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().background(Color.Black.copy(0.3f))
         ) {
             IconButton(
                 onClick = onBack,
                 modifier = Modifier
-//                    .align(Alignment.TopStart)
                     .padding(8.dp)
             ) {
                 Icon(
@@ -330,7 +333,8 @@ fun BackdropHeader(movie: MovieDetails, onBack: () -> Unit, share: () -> Unit) {
                 modifier = Modifier
                     .width(126.dp)
                     .height(186.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(8.dp)).shadow(8.dp, shape = RoundedCornerShape(8.dp))
+
             )
             Column(
                 modifier = Modifier

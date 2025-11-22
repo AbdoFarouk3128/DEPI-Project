@@ -9,7 +9,8 @@ data class MovieRecommendationsResponse(
 data class MovieDetails(
     val id: String,
     @SerializedName("imdb_id") val imdbId: String?,
-    @SerializedName("original_title") val originalTitle: String,
+    @SerializedName("title")
+    val originalTitle: String,
     val overview: String,
     val popularity: Double,
     @SerializedName("poster_path") val posterPath: String?,

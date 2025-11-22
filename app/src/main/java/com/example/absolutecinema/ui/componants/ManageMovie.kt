@@ -44,7 +44,6 @@ fun ManageMovie(
     var isLiked by remember { mutableStateOf(false) }
     var isWatch by remember { mutableStateOf(false) }
 
-    val sheetState = rememberModalBottomSheetState()
 
 
 
