@@ -41,6 +41,7 @@ import com.example.absolutecinema.data.api.getTopRatedMovies
 import com.example.absolutecinema.data.api.getUpcomingMovies
 import com.example.absolutecinema.data.helpers.randomNumber
 import com.example.absolutecinema.navigation.Deliverables
+import com.example.absolutecinema.ui.theme.SlideInFromLeft
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
 
@@ -118,42 +119,52 @@ fun ExploreScreen(
                 )
 
             }
-            TopicList(
-                "Today’s Must-Watch",
-                movies = seasonMovies,
-                onMovieClick = onMovieClick,
-                index = 5,
-                goToMovies = goToMovies
-            )
+            SlideInFromLeft{
+                TopicList(
+                    "Today’s Must-Watch",
+                    movies = seasonMovies,
+                    onMovieClick = onMovieClick,
+                    index = 5,
+                    goToMovies = goToMovies
+                )
+            }
 
-            TopicList(
-                "Popular",
-                movies = popularMovies,
-                onMovieClick = onMovieClick,
-                index = 1,
-                goToMovies = goToMovies
-            )
-            TopicList(
-                "Now playing",
-                movies = nowPlayingMovies,
-                onMovieClick = onMovieClick,
-                index = 2,
-                goToMovies = goToMovies
-            )
-            TopicList(
-                "Upcoming",
-                movies = upcomingMovies,
-                onMovieClick = onMovieClick,
-                index = 3,
-                goToMovies = goToMovies
-            )
-            TopicList(
-                "Top Rated",
-                movies = topRatedMovies,
-                onMovieClick = onMovieClick,
-                index = 4,
-                goToMovies = goToMovies
-            )
+            SlideInFromLeft {
+                TopicList(
+                    "Popular",
+                    movies = popularMovies,
+                    onMovieClick = onMovieClick,
+                    index = 1,
+                    goToMovies = goToMovies
+                )
+            }
+            SlideInFromLeft{
+                TopicList(
+                    "Now playing",
+                    movies = nowPlayingMovies,
+                    onMovieClick = onMovieClick,
+                    index = 2,
+                    goToMovies = goToMovies
+                )
+            }
+            SlideInFromLeft{
+                TopicList(
+                    "Upcoming",
+                    movies = upcomingMovies,
+                    onMovieClick = onMovieClick,
+                    index = 3,
+                    goToMovies = goToMovies
+                )
+            }
+            SlideInFromLeft{
+                TopicList(
+                    "Top Rated",
+                    movies = topRatedMovies,
+                    onMovieClick = onMovieClick,
+                    index = 4,
+                    goToMovies = goToMovies
+                )
+            }
 
         }
     }
@@ -186,7 +197,9 @@ fun TopicList(
 //            )
             Text(
                 topicName,
-                modifier = Modifier.padding(8.dp).weight(1f),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .weight(1f),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White

@@ -107,7 +107,10 @@ dependencies {
 
     // Helpful if you later add coroutines to ViewModels. Lets you control Dispatchers in tests.
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
-    
+    // Animations
+    implementation ("com.google.accompanist:accompanist-navigation-animation:0.31.5-beta")
+    implementation ("com.google.accompanist:accompanist-navigation-material:0.31.5-beta")
+
 
 
 }
