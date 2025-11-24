@@ -3,7 +3,6 @@ package com.example.absolutecinema.navigation
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.core.content.edit
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,7 +15,6 @@ import com.example.absolutecinema.ui.screens.HomeScreen
 import com.example.absolutecinema.ui.screens.ListsScreen
 import com.example.absolutecinema.ui.screens.Login
 import com.example.absolutecinema.ui.screens.MovieDetails
-import com.example.absolutecinema.ui.screens.OnBoardScreen
 import com.example.absolutecinema.ui.screens.ProfileScreen
 import com.example.absolutecinema.ui.screens.SignUP
 import com.example.absolutecinema.ui.screens.SplashScreen
@@ -47,19 +45,11 @@ fun NavGraph(
     context: Context
 ) {
     auth = Firebase.auth
-    val prefs = context.getSharedPreferences("app_pref", Context.MODE_PRIVATE)
-    val isFirstTime = prefs.getBoolean("isFirstTime", true)
+
     val startDestination = if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) {
         Screen.Explore.route
-//        Screen.OnBoard.route
-//        Screen.Splash.route
     } else {
-        if (isFirstTime) {
-            prefs.edit { putBoolean("isFirstTime", false) }
-            Screen.OnBoard.route
-        } else {
-            Screen.Login.route
-        }
+        Screen.Login.route
     }
     NavHost(
         navController = navController,
@@ -96,9 +86,7 @@ fun NavGraph(
                 }
             }
         }
-        composable(Screen.OnBoard.route) {
-            OnBoardScreen()
-        }
+
 
 
         composable(
