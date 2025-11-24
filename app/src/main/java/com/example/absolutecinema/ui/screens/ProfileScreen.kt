@@ -1,5 +1,6 @@
 package com.example.absolutecinema.ui.screens
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -78,6 +79,8 @@ fun ProfileScreen(
                             calendar.timeInMillis = millis
                             val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                             val formattedDate = dateFormat.format(calendar.time)
+                            val prefs= context.getSharedPreferences("user_birthday", Context.MODE_PRIVATE)
+                            prefs.edit().putString("birthday",formattedDate).apply()
                             viewModel.updateBirthday(formattedDate, context)
                         }
                         showDatePicker = false

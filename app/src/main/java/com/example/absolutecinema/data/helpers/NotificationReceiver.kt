@@ -13,35 +13,19 @@ import com.google.firebase.firestore.firestore
 import java.time.LocalDate
 
 
-class NotificationReceiver (
-    firebaseViewModel:FirebaseViewModel,
-): BroadcastReceiver() {
+class NotificationReceiver : BroadcastReceiver() {
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent?) {
 
-        // Check notification permission for Android 13+
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
-//                != PackageManager.PERMISSION_GRANTED
-//            ) return
-//        }
-
-
         val today = LocalDate.now().toString()
 
-        val userId = Firebase.auth.currentUser?.uid ?: return
-
-        Firebase.firestore.collection("users")
-            .document(userId)
-            .get()
-            .addOnSuccessListener { doc ->
-                val birthday = doc.getString("birthday")
-
-                if (birthday != null && birthday == today) {
-                    sendBirthdayNotification(context)
-                }
-            }
-
+        val prefs=context.getSharedPreferences("user_birthday",Context.MODE_PRIVATE)
+        val birthday = prefs.getString("birthday","")
+        if (today == birthday)
+        {
+            sendBirthdayNotification(context)
+        }
         sendNotification(context)
+        scheduleNextDay(context)
     }
 }

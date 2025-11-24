@@ -1,12 +1,8 @@
 package com.example.absolutecinema
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -22,32 +18,26 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.absolutecinema.data.helpers.createNotificationChannel
 import com.example.absolutecinema.data.helpers.scheduleDailyNotification
-import com.example.absolutecinema.data.helpers.sendNotification
 import com.example.absolutecinema.navigation.NavGraph
 import com.example.absolutecinema.ui.componants.BottomNavigationBar
-import com.example.absolutecinema.ui.screens.ExploreScreen
 import com.example.absolutecinema.ui.theme.AbsoluteCinemaTheme
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
 import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
-import android.net.Uri
+
 
 class MainActivity : ComponentActivity() {
     var isDialogShown= mutableStateOf(false)
     override fun onCreate(savedInstanceState: Bundle?) {
-        val requestHandler = handlePermissionRequest()
-
         super.onCreate(savedInstanceState)
+        val requestHandler = handlePermissionRequest()
         createNotificationChannel(this)
         setContent {
             AbsoluteCinemaTheme {
@@ -63,7 +53,7 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
                 val dontShowBottomBar = when (currentRoute) {
-                    "signup", "login" -> true
+                    "signup", "login","onboard","splash" -> true
                     else -> false
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
@@ -75,6 +65,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
                         if(!dontShowBottomBar){
+
                             BottomNavigationBar(
                                 navController = navController,
                                 isUserLoggedIn = isUserLoggedIn,
@@ -101,10 +92,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        // ATTENTION: This was auto-generated to handle app links.
-        val appLinkIntent: Intent = intent
-        val appLinkAction: String? = appLinkIntent.action
-        val appLinkData: Uri? = appLinkIntent.data
+
     }
     fun handlePermissionRequest(): ActivityResultLauncher<String> {
         val handler = registerForActivityResult(

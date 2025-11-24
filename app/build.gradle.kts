@@ -110,6 +110,7 @@ dependencies {
     // Animations
     implementation ("com.google.accompanist:accompanist-navigation-animation:0.31.5-beta")
     implementation ("com.google.accompanist:accompanist-navigation-material:0.31.5-beta")
+    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.35.0-alpha")
 
 
 

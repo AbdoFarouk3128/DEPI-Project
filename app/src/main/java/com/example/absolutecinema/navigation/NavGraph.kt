@@ -2,14 +2,8 @@ package com.example.absolutecinema.navigation
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.sp
+import androidx.core.content.edit
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -22,6 +16,7 @@ import com.example.absolutecinema.ui.screens.HomeScreen
 import com.example.absolutecinema.ui.screens.ListsScreen
 import com.example.absolutecinema.ui.screens.Login
 import com.example.absolutecinema.ui.screens.MovieDetails
+import com.example.absolutecinema.ui.screens.OnBoardScreen
 import com.example.absolutecinema.ui.screens.ProfileScreen
 import com.example.absolutecinema.ui.screens.SignUP
 import com.example.absolutecinema.ui.screens.SplashScreen
@@ -52,15 +47,23 @@ fun NavGraph(
     context: Context
 ) {
     auth = Firebase.auth
+    val prefs = context.getSharedPreferences("app_pref", Context.MODE_PRIVATE)
+    val isFirstTime = prefs.getBoolean("isFirstTime", true)
     val startDestination = if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) {
-//        "splash"
         Screen.Explore.route
+//        Screen.OnBoard.route
+//        Screen.Splash.route
     } else {
-        Screen.Login.route
+        if (isFirstTime) {
+            prefs.edit { putBoolean("isFirstTime", false) }
+            Screen.OnBoard.route
+        } else {
+            Screen.Login.route
+        }
     }
     NavHost(
         navController = navController,
-        startDestination = startDestination,
+        startDestination = Screen.Splash.route,
     ) {
         composable(Screen.Home.route) {
             HomeScreen(
@@ -86,27 +89,16 @@ fun NavGraph(
         }
 
 
-//            // 1) Normal launch route
-//            composable("splash") {
-//                SplashScreen("")
-//            }
-//
-//            // 2) Deep link route
-//            composable(
-//                route = "splash/{id}",
-//                arguments = listOf(
-//                    navArgument("id") { type = NavType.StringType }
-//                ),
-////                deepLinks = listOf(
-////                    navDeepLink {
-////                        uriPattern = "https://www.absolute-cinema-app.com/{id}"
-////                    }
-////                )
-//            ) { backStackEntry ->
-//                val id = backStackEntry.arguments?.getString("id") ?: "no id"
-//                SplashScreen(id)
-//            }
-
+        composable(Screen.Splash.route) {
+            SplashScreen {
+                navController.navigate(startDestination) {
+                    popUpTo(0)
+                }
+            }
+        }
+        composable(Screen.OnBoard.route) {
+            OnBoardScreen()
+        }
 
 
         composable(
@@ -176,7 +168,7 @@ fun NavGraph(
             val encodedJson = backStackEntry.arguments?.getString("deliverables") ?: ""
             val json = URLDecoder.decode(encodedJson, "UTF-8")
             val deliverables = Gson().fromJson(json, Deliverables::class.java)
-            Log.d("del","$deliverables")
+            Log.d("del", "$deliverables")
             MovieDetails(
                 movieId = deliverables.movieId,
                 posterPath = deliverables.poster,
