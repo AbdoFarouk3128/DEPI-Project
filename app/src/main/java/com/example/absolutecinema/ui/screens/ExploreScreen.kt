@@ -1,11 +1,8 @@
-package com.example.absolutecinema.ui
+package com.example.absolutecinema.ui.screens
 
-import Results
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -22,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,16 +30,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.absolutecinema.R
+import com.example.absolutecinema.data.api.Results
+import com.example.absolutecinema.data.api.getMoviesOnDate
 import com.example.absolutecinema.data.api.getNowPlayingMovies
 import com.example.absolutecinema.data.api.getPopularMovies
 import com.example.absolutecinema.data.api.getTopRatedMovies
 import com.example.absolutecinema.data.api.getUpcomingMovies
+import com.example.absolutecinema.data.helpers.randomNumber
 import com.example.absolutecinema.navigation.Deliverables
+import com.example.absolutecinema.ui.theme.SlideInFromLeft
+import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
 
 @Composable
@@ -52,12 +50,15 @@ fun ExploreScreen(
     onMovieClick: (Deliverables) -> Unit,
     goToMovies: (Int) -> Unit,
     firebaseViewModel: FirebaseViewModel,
+    time:(String)->Unit,
 ) {
 
     var topRatedMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
     var upcomingMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
     var popularMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
     var nowPlayingMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
+    var seasonMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
+
 
     val firstName by firebaseViewModel.firstName.observeAsState("")
 
@@ -69,25 +70,37 @@ fun ExploreScreen(
         getNowPlayingMovies { nowPlayingMovies = it }
         getUpcomingMovies { upcomingMovies = it }
         getTopRatedMovies { topRatedMovies = it }
+        getMoviesOnDate(randomNumber()) { seasonMovies = it }
+
     }
 
 
     val isLoading = popularMovies.isEmpty() ||
             nowPlayingMovies.isEmpty() ||
             upcomingMovies.isEmpty() ||
-            topRatedMovies.isEmpty()
+            topRatedMovies.isEmpty()||
+            seasonMovies.isEmpty()
 
     if (isLoading) {
-        CircularProgressIndicator(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .wrapContentSize(Alignment.Center)
-        )
+                .background(darkBlue),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator()
+
+            }
+        }
     } else {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(darkBlue)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
@@ -101,48 +114,58 @@ fun ExploreScreen(
                     text = if (firstName.isNotEmpty()) "Welcome, $firstName" else "Welcome",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black,
+                    color = Color.White,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
-                Image(
-                    painterResource(R.drawable.pocorn),
-                    contentDescription = "Popcorn",
-                    modifier = Modifier.size(35.dp)
+
+            }
+            SlideInFromLeft{
+                TopicList(
+                    "Today’s Must-Watch",
+                    movies = seasonMovies,
+                    onMovieClick = onMovieClick,
+                    index = 5,
+                    goToMovies = goToMovies
                 )
             }
 
-            TopicList(
-                R.drawable.populer,
-                "Popular",
-                movies = popularMovies,
-                onMovieClick = onMovieClick,
-                index = 1,
-                goToMovies = goToMovies
-            )
-            TopicList(
-                R.drawable.noplaying,
-                "Now playing",
-                movies = nowPlayingMovies,
-                onMovieClick = onMovieClick,
-                index = 2,
-                goToMovies = goToMovies
-            )
-            TopicList(
-                R.drawable.upcoming,
-                "Upcoming",
-                movies = upcomingMovies,
-                onMovieClick = onMovieClick,
-                index = 3,
-                goToMovies = goToMovies
-            )
-            TopicList(
-                R.drawable.top,
-                "Top Rated",
-                movies = topRatedMovies,
-                onMovieClick = onMovieClick,
-                index = 4,
-                goToMovies = goToMovies
-            )
+            SlideInFromLeft {
+                TopicList(
+                    "Popular",
+                    movies = popularMovies,
+                    onMovieClick = onMovieClick,
+                    index = 1,
+                    goToMovies = goToMovies
+                )
+            }
+            SlideInFromLeft{
+                TopicList(
+                    "Now playing",
+                    movies = nowPlayingMovies,
+                    onMovieClick = onMovieClick,
+                    index = 2,
+                    goToMovies = goToMovies
+                )
+            }
+            SlideInFromLeft{
+                TopicList(
+                    "Upcoming",
+                    movies = upcomingMovies,
+                    onMovieClick = onMovieClick,
+                    index = 3,
+                    goToMovies = goToMovies
+                )
+            }
+            SlideInFromLeft{
+                TopicList(
+                    "Top Rated",
+                    movies = topRatedMovies,
+                    onMovieClick = onMovieClick,
+                    index = 4,
+                    goToMovies = goToMovies
+                )
+            }
+
         }
     }
 
@@ -150,7 +173,6 @@ fun ExploreScreen(
 
 @Composable
 fun TopicList(
-    image:Int,
     topicName: String,
     movies: List<Results>,
     onMovieClick: (Deliverables) -> Unit,
@@ -166,29 +188,31 @@ fun TopicList(
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp)
         ) {
-            Image(
-                painterResource(image),
-                contentDescription = topicName,
-                modifier = Modifier.padding(8.dp)
-                    .size(20.dp)
-
-            )
+//            Image(
+//                painterResource(image),
+//                contentDescription = topicName,
+//                modifier = Modifier.padding(8.dp)
+//                    .size(20.dp)
+//
+//            )
             Text(
                 topicName,
-                modifier = Modifier.padding(8.dp).weight(1f),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .weight(1f),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.Black
+                color = Color.White
             )
             if (movies.size > 5) {
                 TextButton(onClick = { goToMovies(index) },
                    ) {
-                    Text("See All", color = Color.Red, fontWeight = FontWeight.SemiBold)
+                    Text("See All", color = Color(0xFF00BCD4), fontWeight = FontWeight.SemiBold)
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                         contentDescription = "See All",
                         modifier = Modifier.size(18.dp),
-                        Color.Red
+                        Color(0xFF00BCD4)
                     )
                 }
             }

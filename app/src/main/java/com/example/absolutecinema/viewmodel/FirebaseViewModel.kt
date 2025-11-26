@@ -15,14 +15,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import java.io.ByteArrayOutputStream
 import android.util.Base64
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 
-data class UserProfile(
-    val firstName: String = "",
-    val secondName: String = "",
-    val email: String = "",
-    val birthday: String = "",
-    val profileImageUrl: String = ""
-)
 
 class FirebaseViewModel : ViewModel() {
     val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -286,6 +281,27 @@ class FirebaseViewModel : ViewModel() {
                 }
         } else {
             _firstName.value = ""
+        }
+    }
+    fun fetchUserBirthday(){
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            Firebase.firestore.collection("users")
+                .document(currentUser.uid)
+                .get()
+                .addOnSuccessListener { document ->
+                    val birthday = document.getString("birthday")
+
+                    if (birthday != null) {
+                        Log.d("Firestore", "Saved date: $birthday")
+                    } else {
+                        Log.d("Firestore", "No date found for savedAt")
+                    }
+                }
+                .addOnFailureListener {
+                    Log.e("Firestore", "Error getting date", it)
+                }
+
         }
     }
 

@@ -1,6 +1,5 @@
 package com.example.absolutecinema.navigation
 
-import Results
 import java.net.URLEncoder
 
 sealed class Screen(val route: String) {
@@ -9,6 +8,11 @@ sealed class Screen(val route: String) {
     object Topic : Screen("movies/{index}"){
         fun createRoute(index:Int): String {
             return "movies/$index"
+        }
+    }
+    object UserLists:Screen("userList/{listType}"){
+        fun createRoute(listType:String):String{
+            return "userList/$listType"
         }
     }
 
@@ -20,44 +24,14 @@ sealed class Screen(val route: String) {
             return "details/$encoded"
         }
     }
-    object Watchlist : Screen("watchlist/{deliverables}"){
-        fun createRoute(deliverables: Deliverables): String {
-            val gson = com.google.gson.Gson()
-            val json = gson.toJson(deliverables)
-            val encoded = URLEncoder.encode(json, "UTF-8")
-            return "watchlist/$encoded"
-        }
-    }
-    object LikedList : Screen("likedList/{deliverables}"){
-        fun createRoute(deliverables: Deliverables): String {
-            val gson = com.google.gson.Gson()
-            val json = gson.toJson(deliverables)
-            val encoded = URLEncoder.encode(json, "UTF-8")
-            return "likedList/$encoded"
-        }
-    }
-    object Watched:Screen("watched/{deliverables}"){
-        fun createRoute(deliverables: Deliverables): String {
-            val gson = com.google.gson.Gson()
-            val json = gson.toJson(deliverables)
-            val encoded = URLEncoder.encode(json, "UTF-8")
-            return "watched/$encoded"
-        }
-    }
-    object Rated:Screen("rated/{deliverables}"){
-        fun createRoute(deliverables: Deliverables): String {
-            val gson = com.google.gson.Gson()
-            val json = gson.toJson(deliverables)
-            val encoded = URLEncoder.encode(json, "UTF-8")
-            return "rated/$encoded"
-        }
-    }
     object SignUP : Screen("signup")
     object Login : Screen("login")
 //    object Home : Screen("home")
     object Lists : Screen("lists")
     object Profile : Screen("profile")
     object Explore : Screen("explore")
+    object Splash : Screen("splash")
+//    object OnBoard : Screen("onboard")
 }
 data class Deliverables(
     val movieId: String,

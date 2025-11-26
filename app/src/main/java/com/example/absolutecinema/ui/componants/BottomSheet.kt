@@ -48,7 +48,6 @@ fun BottomSheet(
     val watchlist by watchlistViewModel.watchlist.observeAsState(mutableListOf())
     val likedList by likedListViewModel.likedList.observeAsState(mutableListOf())
     val watchedList by watchedMoviesViewModel.watchedList.observeAsState(mutableListOf())
-    val currentRating by ratedMovieViewModel.currentRating.observeAsState(0)
 
     // ✅ Check if movie exists in each list
     var isWatched by remember { mutableStateOf(false) }
@@ -59,7 +58,6 @@ fun BottomSheet(
 
     // ✅ Fetch the movie rating when component loads
     LaunchedEffect(movieId) {
-        ratedMovieViewModel.fetchMovieRating(movieId)
     }
 
     // ✅ Update local states when LiveData changes
@@ -154,21 +152,21 @@ fun BottomSheet(
                     Text(if(isWatch)"Watched" else "Watch", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
-                RatingBar(
-                    modifier = Modifier
-                        .size(70.dp)
-                        .padding(top = 16.dp),
-                    rating = currentRating,
-                    onRatingChanged = { newRating ->
-                        ratedMovieViewModel.updateCurrentMovieRating(newRating)
-                        ratedMovieViewModel.ratedMoviesControl(movieId, newRating)
-                    },
-                    movieId = movieId,
-                    starsColor = Color.Red,
-                    saveRating = { id, newRating ->
-                        ratedMovieViewModel.ratedMoviesControl(id, newRating)
-                    }
-                )
+//                RatingBar(
+//                    modifier = Modifier
+//                        .size(70.dp)
+//                        .padding(top = 16.dp),
+//                    rating = currentRating,
+//                    onRatingChanged = { newRating ->
+//                        ratedMovieViewModel.updateCurrentMovieRating(newRating)
+//                        ratedMovieViewModel.ratedMoviesControl(movieId, newRating)
+//                    },
+//                    movieId = movieId,
+//                    starsColor = Color.Red,
+//                    saveRating = { id, newRating ->
+//                        ratedMovieViewModel.ratedMoviesControl(id, newRating)
+//                    }
+//                )
             Text("Rating", fontWeight = FontWeight.SemiBold)
 
 

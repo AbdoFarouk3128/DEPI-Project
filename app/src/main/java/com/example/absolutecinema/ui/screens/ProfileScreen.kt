@@ -1,5 +1,6 @@
-package com.example.absolutecinema.ui
+package com.example.absolutecinema.ui.screens
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -77,6 +79,8 @@ fun ProfileScreen(
                             calendar.timeInMillis = millis
                             val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                             val formattedDate = dateFormat.format(calendar.time)
+                            val prefs= context.getSharedPreferences("user_birthday", Context.MODE_PRIVATE)
+                            prefs.edit().putString("birthday",formattedDate).apply()
                             viewModel.updateBirthday(formattedDate, context)
                         }
                         showDatePicker = false
@@ -111,7 +115,9 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .background(darkBlue)
                 .padding(16.dp),
+
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(32.dp))
@@ -214,7 +220,7 @@ fun ProfileScreen(
                 text = "${userProfile?.firstName ?: ""} ${userProfile?.secondName ?: ""}".trim(),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+                color = Color.White
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -222,7 +228,7 @@ fun ProfileScreen(
             Text(
                 text = userProfile?.email ?: "",
                 fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                color = Color.White
             )
 
             Spacer(modifier = Modifier.height(32.dp))

@@ -1,9 +1,20 @@
-package com.example.absolutecinema.ui
+package com.example.absolutecinema.ui.screens
 
-import Results
+import com.example.absolutecinema.data.api.Results
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -12,9 +23,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +50,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.data.api.getDetails
 import com.example.absolutecinema.navigation.Deliverables
+import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
 import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
@@ -39,7 +63,7 @@ fun ListsScreen(
     watchedMoviesViewModel: WatchedMoviesViewModel,
     ratedMovieViewModel: RatedMovieViewModel,
     onMovieClick: (Deliverables) -> Unit,
-    onSeeAllClick: (String) -> Unit
+    onSeeAllClick: (String) -> Unit,
 ) {
     // ✅ Observe data from ViewModels (auto-updates when Firebase changes)
     val watchlist by watchlistViewModel.watchlist.observeAsState(emptyList())
@@ -70,7 +94,7 @@ fun ListsScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+                .background(darkBlue),
             contentAlignment = Alignment.Center
         ) {
             Column(
@@ -85,7 +109,7 @@ fun ListsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(darkBlue)
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 16.dp)
         ) {
@@ -94,7 +118,9 @@ fun ListsScreen(
                 text = "My Lists",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
+                color = Color.White,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -104,7 +130,7 @@ fun ListsScreen(
                 title = "Watchlist",
                 movieIds = watchlist.map { it.movieId },
                 totalCount = watchlist.size,
-                color = Color(0xFF6200EA),
+                color = Color(0xFFA970FF),
                 onMovieClick = onMovieClick,
                 onSeeAllClick = { onSeeAllClick("watchlist") }
             )
@@ -206,6 +232,7 @@ fun MovieListSection(
                 Text(
                     text = title,
                     fontSize = 20.sp,
+                    color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.width(8.dp))
