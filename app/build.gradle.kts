@@ -111,6 +111,10 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-navigation-animation:0.31.5-beta")
     implementation ("com.google.accompanist:accompanist-navigation-material:0.31.5-beta")
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.35.0-alpha")
+    //Fonts
+
+        implementation("androidx.compose.ui:ui-text-google-fonts:1.9.3")
+
 
 
 
