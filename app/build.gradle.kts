@@ -19,6 +19,12 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    testOptions{
+        // Allows unit tests (in src/test) to access Android resources if any code touches them.
+        // It's safe to enable and avoids resource-related failures in JVM tests.
+        unitTests.isIncludeAndroidResources = true
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -80,5 +86,49 @@ dependencies {
     implementation("com.airbnb.android:lottie-compose:4.0.0")
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.5.0")
+
+    // ------------------------------
+    // Unit testing (JVM)
+    // ------------------------------
+
+    // JUnit 4 test framework
+    testImplementation("junit:junit:4.13.2")
+
+    // Run LiveData synchronously in tests via InstantTaskExecutorRule.
+    // Without this, LiveData posts might happen on background thread and break simple tests.
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+
+    // MockK is used to stub FirebaseAuth.getInstance() / FirebaseFirestore.getInstance()
+    // so unit tests don't hit the network or real Firebase.
+    testImplementation("io.mockk:mockk:1.13.5")
+
+    // Optional, nicer assertions (you can keep using JUnit asserts too)
+    testImplementation("com.google.truth:truth:1.4.2")
+
+    // Helpful if you later add coroutines to ViewModels. Lets you control Dispatchers in tests.
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+
+    androidTestImplementation("androidx.test:core-ktx:1.5.0")
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // If using androidx.lifecycle LiveData testing
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+
+    // If using Jetpack Navigation testing
+    androidTestImplementation("androidx.navigation:navigation-testing:2.5.3")
+
+    // compose ui tests
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.4.3") // use your Compose version
+
+    // Animations
+    implementation ("com.google.accompanist:accompanist-navigation-animation:0.31.5-beta")
+    implementation ("com.google.accompanist:accompanist-navigation-material:0.31.5-beta")
+    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.35.0-alpha")
+    //Fonts
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.9.3")
+
+
+
 
 }

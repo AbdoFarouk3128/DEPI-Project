@@ -1,6 +1,5 @@
 package com.example.absolutecinema.navigation
 
-import Results
 import java.net.URLEncoder
 
 sealed class Screen(val route: String) {
@@ -31,6 +30,8 @@ sealed class Screen(val route: String) {
     object Lists : Screen("lists")
     object Profile : Screen("profile")
     object Explore : Screen("explore")
+    object Splash : Screen("splash")
+    object OnBoard : Screen("onboard")
 }
 data class Deliverables(
     val movieId: String,

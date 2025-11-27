@@ -1,0 +1,602 @@
+package com.example.absolutecinema.ui.screens
+
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.example.absolutecinema.R
+import com.example.absolutecinema.data.api.CastMember
+import com.example.absolutecinema.data.api.MovieDetails
+import com.example.absolutecinema.data.api.MoviesRelated
+import com.example.absolutecinema.data.api.VideosResponse
+import com.example.absolutecinema.data.api.getMovieDetails
+import com.example.absolutecinema.navigation.Deliverables
+import com.example.absolutecinema.ui.componants.ManageMovie
+import com.example.absolutecinema.ui.componants.RatingBar
+import com.example.absolutecinema.ui.componants.RatingStatisticsBar
+import com.example.absolutecinema.ui.theme.darkBlue
+import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
+import com.example.absolutecinema.viewmodel.RatedMovieViewModel
+import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
+import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
+
+@Composable
+fun MovieDetails(
+    movieId: String,
+    posterPath: String,
+    watchlistViewModel: WatchlistMoviesViewModel,
+    likedListViewModel: LikedMoviesViewModel,
+    watchedMoviesViewModel: WatchedMoviesViewModel,
+    ratedMovieViewModel: RatedMovieViewModel,
+    onBack: () -> Unit,
+    share: () -> Unit,
+    onMovieClick: (Deliverables) -> Unit,
+) {
+    var movieDetails by remember { mutableStateOf<MovieDetails?>(null) }
+
+    val ratingStatistics by ratedMovieViewModel.ratingStatistics.observeAsState()
+
+
+    // Keep status bar icons dark (but UI is dark blue so this is fine)
+    val view = LocalView.current
+    DisposableEffect(Unit) {
+        val window = (view.context as? Activity)?.window
+        window?.let {
+            // Keep status bar white/light background
+            it.statusBarColor = android.graphics.Color.WHITE
+            // Set icons to DARK so they're visible on white background
+            androidx.core.view.WindowCompat.getInsetsController(
+                it,
+                view
+            ).isAppearanceLightStatusBars = true
+        }
+        onDispose {}
+    }
+
+    LaunchedEffect(movieId) {
+        getMovieDetails(movieId) {
+            movieDetails = it
+        }
+    }
+
+
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(darkBlue)
+    ) {
+        if (movieDetails != null) {
+            val details = movieDetails!!
+
+            item { BackdropHeader(details, onBack, share) }
+
+            // About Section
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.padding(12.dp).fillParentMaxWidth()
+                ) {
+
+                    Text(
+                        text = "About the Movie",
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    ManageMovie(
+                        Modifier
+                            .padding(12.dp)
+                            .padding(top = 12.dp),
+                        movieId = movieId,
+                        posterPath = posterPath,
+                        watchlistViewModel = watchlistViewModel,
+                        likedListViewModel = likedListViewModel,
+                        watchedMoviesViewModel = watchedMoviesViewModel,
+                    )
+//                    Spacer(Modifier.width(25.dp))
+                }
+
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = details.overview,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // Trailer Section
+            if (details.videos?.results?.isNotEmpty() == true) {
+                item {
+                    TrailerSection(details.videos)
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+
+            // Manage Movie
+            item {
+                RatingStatsBar(movieId, ratedMovieViewModel)
+                Spacer(modifier = Modifier.height(24.dp))
+
+            }
+
+            // Cast
+            details.credits?.cast?.let { cast ->
+                if (cast.isNotEmpty()) {
+                    item {
+                        CastSection(cast)
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
+            }
+
+            // Recommendations
+            if (details.recommendations.isNotEmpty()) {
+                item {
+                    RecommendationsSection(details.recommendations, onMovieClick)
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+        } else {
+            item {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .wrapContentSize(Alignment.Center)
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun RatingStatsBar(
+    movieId: String,
+    ratedMovieViewModel: RatedMovieViewModel,
+) {
+    val currentUserRating by ratedMovieViewModel.currentUserRating.observeAsState(0)
+    val ratingStatistics by ratedMovieViewModel.ratingStatistics.observeAsState()
+
+    LaunchedEffect(movieId) {
+        ratedMovieViewModel.fetchRatingStatistics(movieId)
+        ratedMovieViewModel.fetchUserRating(movieId)
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+
+
+        RatingStatisticsBar(statistics = ratingStatistics)
+
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // User's personal rating
+        Text("Your Rating", fontWeight = FontWeight.SemiBold, color = Color.White)
+
+        RatingBar(
+            modifier = Modifier
+                .size(70.dp)
+                .padding(top = 16.dp),
+            rating = currentUserRating,
+            onRatingChanged = { newRating ->
+                ratedMovieViewModel.updateCurrentMovieRating(newRating)
+            },
+            movieId = movieId,
+            starsColor = Color.Red,
+            saveRating = { id, newRating ->
+                ratedMovieViewModel.ratedMoviesControl(id, newRating)
+            }
+        )
+
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun BackdropHeader(movie: MovieDetails, onBack: () -> Unit, share: () -> Unit) {
+    val context = LocalContext.current
+    val voteOutOfFive = (movie.voteAverage / 2.0).toFloat()
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+    ) {
+        // Backdrop Image
+        GlideImage(
+            model = "https://image.tmdb.org/t/p/w1280/${movie.backdropPath}",
+            contentDescription = movie.originalTitle,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // Gradient overlay
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .align(Alignment.BottomCenter)
+                .background(
+                    brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.7f),
+                            Color.Black.copy(alpha = 0.9f)
+                        )
+                    )
+                )
+        )
+
+        // Back button - simple positioning
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth().background(Color.Black.copy(0.3f))
+        ) {
+            IconButton(
+                onClick = onBack,
+                modifier = Modifier
+                    .padding(8.dp)
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+
+            IconButton(
+                onClick = share,
+                modifier = Modifier
+//                    .align(Alignment.TopStart)
+                    .padding(8.dp)
+            ) {
+                Icon(
+                    Icons.Default.Share,
+                    contentDescription = "share",
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        }
+
+        // Movie info
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp)
+        ) {
+            GlideImage(
+                model = "https://image.tmdb.org/t/p/w500/${movie.posterPath}",
+                contentDescription = movie.originalTitle,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .width(126.dp)
+                    .height(186.dp)
+                    .clip(RoundedCornerShape(8.dp)).shadow(8.dp, shape = RoundedCornerShape(8.dp))
+
+            )
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Bottom)
+                    .padding(start = 16.dp)
+            ) {
+                Text(
+                    text = movie.originalTitle,
+                    color = Color.White,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "${movie.releaseDate.substringBefore("-")} • ${movie.genres.joinToString { it.name }}",
+                    color = Color.White,
+                    fontSize = 14.sp
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    movie.imdbId?.let { imdbId ->
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5C518)),
+                            modifier = Modifier.clickable {
+                                val intent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://www.imdb.com/title/$imdbId/")
+                                )
+                                context.startActivity(intent)
+                            }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.imdb_logo),
+                                    contentDescription = "IMDb",
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.size(45.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Card(
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.6f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Star,
+                                contentDescription = "Rating",
+                                tint = Color(0xFFFFC107),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = String.format("%.1f", voteOutOfFive),
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "/5",
+                                color = Color.White.copy(alpha = 0.7f),
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CastSection(cast: List<CastMember>) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Text(
+            "Cast",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(cast) { member -> CastMemberItem(member) }
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun CastMemberItem(member: CastMember) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(80.dp)
+    ) {
+        if (member.profilePath.isNullOrEmpty()) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_person_placeholder),
+                contentDescription = member.name,
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape),
+                tint = Color.White
+            )
+        } else {
+            GlideImage(
+                model = "https://image.tmdb.org/t/p/w200/${member.profilePath}",
+                contentDescription = member.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+            )
+        }
+        Text(
+            text = member.name,
+            fontSize = 12.sp,
+            maxLines = 2,
+            textAlign = TextAlign.Center,
+            color = Color.White
+        )
+    }
+}
+
+@Composable
+fun RecommendationsSection(
+    recommendations: List<MoviesRelated>,
+    onMovieClick: (Deliverables) -> Unit
+) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Text(
+            "You might also like",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(recommendations) { movie ->
+                RecommendedMovieItem(movie, onMovieClick)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun RecommendedMovieItem(movie: MoviesRelated, onMovieClick: (Deliverables) -> Unit) {
+    GlideImage(
+        model = "https://image.tmdb.org/t/p/w500/${movie.poster}",
+        contentDescription = movie.title,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .width(120.dp)
+            .height(180.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable {
+                onMovieClick(
+                    Deliverables(
+                        movieId = movie.id,
+                        poster = movie.poster ?: "",
+                        title = movie.title
+                    )
+                )
+            }
+    )
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun TrailerSection(videos: VideosResponse?) {
+    val trailer =
+        videos?.results?.firstOrNull { it.type == "Trailer" && it.site == "YouTube" && it.official }
+            ?: videos?.results?.firstOrNull { it.type == "Trailer" && it.site == "YouTube" }
+
+    val context = LocalContext.current
+
+    trailer?.let {
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            Text(
+                "Trailer",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // YouTube Trailer Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clickable {
+                        val youtubeIntent =
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://www.youtube.com/watch?v=${trailer.key}")
+                            )
+                        context.startActivity(youtubeIntent)
+                    },
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(4.dp)
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    // YouTube Thumbnail
+                    GlideImage(
+                        model = "https://img.youtube.com/vi/${trailer.key}/maxresdefault.jpg",
+                        contentDescription = "Trailer Thumbnail",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    // Dark overlay
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.3f))
+                    )
+
+                    // Play button
+                    Icon(
+                        painter = painterResource(R.drawable.ic_play_circle),
+                        contentDescription = "Play Trailer",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(80.dp)
+                            .align(Alignment.Center)
+                    )
+
+                    // YouTube logo in corner
+                    Image(
+                        painter = painterResource(R.drawable.youtube_logo),
+                        contentDescription = "YouTube Logo",
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(12.dp)
+                            .width(60.dp)
+                    )
+
+                    // Trailer title
+                    Text(
+                        text = trailer.name,
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(12.dp)
+                            .fillMaxWidth(0.7f)
+                    )
+                }
+            }
+        }
+    }
+}
