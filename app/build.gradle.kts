@@ -100,20 +100,33 @@ dependencies {
 
     // MockK is used to stub FirebaseAuth.getInstance() / FirebaseFirestore.getInstance()
     // so unit tests don't hit the network or real Firebase.
-    testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("io.mockk:mockk:1.13.5")
 
     // Optional, nicer assertions (you can keep using JUnit asserts too)
     testImplementation("com.google.truth:truth:1.4.2")
 
     // Helpful if you later add coroutines to ViewModels. Lets you control Dispatchers in tests.
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+
+    androidTestImplementation("androidx.test:core-ktx:1.5.0")
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // If using androidx.lifecycle LiveData testing
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+
+    // If using Jetpack Navigation testing
+    androidTestImplementation("androidx.navigation:navigation-testing:2.5.3")
+
+    // compose ui tests
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.4.3") // use your Compose version
+
     // Animations
     implementation ("com.google.accompanist:accompanist-navigation-animation:0.31.5-beta")
     implementation ("com.google.accompanist:accompanist-navigation-material:0.31.5-beta")
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.35.0-alpha")
     //Fonts
-
-        implementation("androidx.compose.ui:ui-text-google-fonts:1.9.3")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.9.3")
 
 
 
