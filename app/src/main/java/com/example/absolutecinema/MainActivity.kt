@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -64,18 +65,19 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        if(!dontShowBottomBar){
-
-                            BottomNavigationBar(
-                                navController = navController,
-                                isUserLoggedIn = isUserLoggedIn,
-                                onAuthRequired = {
-                                    navController.navigate("login") {
-                                        launchSingleTop = true
-                                    }
+//                        if(!dontShowBottomBar){
+                        AnimatedVisibility(visible = !dontShowBottomBar) {
+                        BottomNavigationBar(
+                            navController = navController,
+                            isUserLoggedIn = isUserLoggedIn,
+                            onAuthRequired = {
+                                navController.navigate("login") {
+                                    launchSingleTop = true
                                 }
-                            )
-                        }
+                            }
+                        )
+                    }
+//                        }
                     }
                 ) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {

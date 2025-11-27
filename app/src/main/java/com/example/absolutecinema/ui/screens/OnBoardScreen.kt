@@ -68,7 +68,7 @@ fun OnBoardScreen(onFinished: () -> Unit) {
                 0-> listOf("","Next")
                 1-> listOf("Back","Next")
                 2-> listOf("Back","Next")
-                3-> listOf("Back","Get Started")
+                3-> listOf("Back","Start")
                 else-> listOf("","")
             }
         }
@@ -111,7 +111,6 @@ fun OnBoardScreen(onFinished: () -> Unit) {
                     ButtonUi(
                         text = buttonState.value[1],
                         backgroundColor = Color.Red,
-                        textColor = MaterialTheme.colorScheme.onPrimary
                         ) {
                         scope.launch {
                             if(pagerState.currentPage<pages.size-1)
@@ -144,7 +143,7 @@ fun OnBoardScreen(onFinished: () -> Unit) {
 fun ButtonUi(
     text: String = "Next",
     backgroundColor: Color = Color.Red,
-    textColor: Color = MaterialTheme.colorScheme.onPrimary,
+    textColor: Color = Color.White,
     textStyle: TextStyle = MaterialTheme.typography.titleMedium,
     fontSize: Int = 14,
     onClick: () -> Unit,
@@ -155,7 +154,8 @@ fun ButtonUi(
             containerColor = backgroundColor,
             contentColor = textColor,
         ),
-        shape = RoundedCornerShape(10.dp)
+        shape = RoundedCornerShape(10.dp),
+
     ) {
         Text(text, fontSize = fontSize.sp, style = textStyle)
     }
