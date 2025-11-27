@@ -41,6 +41,7 @@ import com.example.absolutecinema.data.api.getTopRatedMovies
 import com.example.absolutecinema.data.api.getUpcomingMovies
 import com.example.absolutecinema.data.helpers.randomNumber
 import com.example.absolutecinema.navigation.Deliverables
+import com.example.absolutecinema.ui.componants.BannerAd
 import com.example.absolutecinema.ui.theme.SlideInFromLeft
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
@@ -119,6 +120,7 @@ fun ExploreScreen(
                 )
 
             }
+            BannerAd()
             SlideInFromLeft{
                 TopicList(
                     "Today’s Must-Watch",
@@ -156,6 +158,7 @@ fun ExploreScreen(
                     goToMovies = goToMovies
                 )
             }
+
             SlideInFromLeft{
                 TopicList(
                     "Top Rated",
