@@ -70,24 +70,40 @@ fun ProfileScreen(
         viewModel.fetchUserProfile()
     }
 
-    // ✅ Material3 DatePicker Dialog
+    // ✅ Material3 DatePicker Dialog (updated: disallow future dates)
     if (showDatePicker) {
+        // compute end-of-day millis for "today" so any selection after now is considered future
+        val todayEndMillis = remember {
+            Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 23)
+                set(Calendar.MINUTE, 59)
+                set(Calendar.SECOND, 59)
+                set(Calendar.MILLISECOND, 999)
+            }.timeInMillis
+        }
+
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
+                val selected = datePickerState.selectedDateMillis
+                val enabled = selected != null && selected <= todayEndMillis
+
                 TextButton(
                     onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            val calendar = Calendar.getInstance()
-                            calendar.timeInMillis = millis
-                            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                            val formattedDate = dateFormat.format(calendar.time)
-                            val prefs= context.getSharedPreferences("user_birthday", Context.MODE_PRIVATE)
-                            prefs.edit().putString("birthday",formattedDate).apply()
-                            viewModel.updateBirthday(formattedDate, context)
+                        if (enabled) {
+                            datePickerState.selectedDateMillis?.let { millis ->
+                                val calendar = Calendar.getInstance()
+                                calendar.timeInMillis = millis
+                                val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                val formattedDate = dateFormat.format(calendar.time)
+                                val prefs = context.getSharedPreferences("user_birthday", Context.MODE_PRIVATE)
+                                prefs.edit().putString("birthday", formattedDate).apply()
+                                viewModel.updateBirthday(formattedDate, context)
+                                showDatePicker = false
+                            }
                         }
-                        showDatePicker = false
-                    }
+                    },
+                    enabled = enabled
                 ) {
                     Text("OK")
                 }
@@ -98,7 +114,18 @@ fun ProfileScreen(
                 }
             }
         ) {
-            DatePicker(state = datePickerState)
+            // DatePicker plus inline validation message when a future date is chosen
+            Column {
+                DatePicker(state = datePickerState)
+                val selected = datePickerState.selectedDateMillis
+                if (selected != null && selected > todayEndMillis) {
+                    Text(
+                        text = "Please select today or a past date",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                    )
+                }
+            }
         }
     }
 
