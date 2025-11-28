@@ -210,8 +210,8 @@ fun OnBoardingGraph(onBoardingModel: OnBoardingModel) {
 fun IndicatorUI(
     pageSize: Int,
     currentPage: Int,
-    selectedColor: Color = Color.Black,
-    unselectedColor: Color = MaterialTheme.colorScheme.secondaryContainer,
+    selectedColor: Color = Color.Gray,
+    unselectedColor: Color = Color.White,
 ) {
     Row(horizontalArrangement = Arrangement.SpaceBetween) {
         repeat(pageSize) {
