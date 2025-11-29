@@ -45,6 +45,9 @@
             </intent-filter>
 
         </activity>
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1356781585755377~3032835945"/>
         <receiver
             android:name=".data.helpers.NotificationReceiver"
             android:exported="true"

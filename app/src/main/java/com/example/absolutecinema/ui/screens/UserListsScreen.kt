@@ -104,15 +104,7 @@ fun UserListsScreen(
                 }
             }
         }
-        if (likedList.isNotEmpty()) {
-            val likedMovies = mutableListOf<Results>()
-            for (movie in likedList) {
-                getDetails(movie.movieId) { result ->
-                    result?.let { likedMovies.add(it) }
-                    movies = likedMovies.toList()
-                }
-            }
-        }
+
         isLoading = false
     }
 

@@ -127,6 +127,8 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.35.0-alpha")
     //Fonts
     implementation("androidx.compose.ui:ui-text-google-fonts:1.9.3")
+    //ads
+    implementation("com.google.android.gms:play-services-ads:24.7.0")
 
 
 

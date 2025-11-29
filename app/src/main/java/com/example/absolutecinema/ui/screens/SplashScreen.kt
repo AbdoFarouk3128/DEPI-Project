@@ -58,8 +58,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
                 )
             )
         }
-        delay(800)
-
+        delay(1000)
         onSplashFinished()
     }
     Row(

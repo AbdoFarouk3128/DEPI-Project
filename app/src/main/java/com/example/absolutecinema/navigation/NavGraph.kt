@@ -92,7 +92,7 @@ fun NavGraph(
         {
             OnBoardScreen{
                 sharedPref.edit { putBoolean("onboarding_done", true) }
-                navController.navigate(Screen.Explore.route)
+                navController.navigate(if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) Screen.Explore.route else Screen.Login.route)
             }
         }
         composable(Screen.Splash.route) {
