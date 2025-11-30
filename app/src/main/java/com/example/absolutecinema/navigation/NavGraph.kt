@@ -10,11 +10,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.example.absolutecinema.data.helpers.shareMovie
+import com.example.absolutecinema.data.onboarding.isOnBoardingComplete
 import com.example.absolutecinema.ui.screens.ExploreScreen
 import com.example.absolutecinema.ui.screens.HomeScreen
 import com.example.absolutecinema.ui.screens.ListsScreen
 import com.example.absolutecinema.ui.screens.Login
 import com.example.absolutecinema.ui.screens.MovieDetails
+import com.example.absolutecinema.ui.screens.OnBoardScreen
 import com.example.absolutecinema.ui.screens.ProfileScreen
 import com.example.absolutecinema.ui.screens.SignUP
 import com.example.absolutecinema.ui.screens.SplashScreen
@@ -31,6 +33,7 @@ import com.google.firebase.auth.auth
 import com.google.gson.Gson
 import java.net.URLDecoder
 import java.net.URLEncoder
+import androidx.core.content.edit
 
 private lateinit var auth: FirebaseAuth
 
@@ -45,10 +48,17 @@ fun NavGraph(
     context: Context
 ) {
     auth = Firebase.auth
+    val sharedPref = context.getSharedPreferences("app_pref", Context.MODE_PRIVATE)
 
-    val startDestination = if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) {
+    val onboardingDone = sharedPref.getBoolean("onboarding_done", false)
+
+    val startDestination = if (!onboardingDone) {
+        Screen.OnBoard.route
+
+    } else if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) {
         Screen.Explore.route
-    } else {
+    }
+    else{
         Screen.Login.route
     }
     NavHost(
@@ -78,7 +88,13 @@ fun NavGraph(
             )
         }
 
-
+        composable(Screen.OnBoard.route)
+        {
+            OnBoardScreen{
+                sharedPref.edit { putBoolean("onboarding_done", true) }
+                navController.navigate(if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) Screen.Explore.route else Screen.Login.route)
+            }
+        }
         composable(Screen.Splash.route) {
             SplashScreen {
                 navController.navigate(startDestination) {

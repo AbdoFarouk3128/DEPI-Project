@@ -34,7 +34,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -43,13 +42,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -88,23 +85,6 @@ fun MovieDetails(
     var movieDetails by remember { mutableStateOf<MovieDetails?>(null) }
 
     val ratingStatistics by ratedMovieViewModel.ratingStatistics.observeAsState()
-
-
-    // Keep status bar icons dark (but UI is dark blue so this is fine)
-    val view = LocalView.current
-    DisposableEffect(Unit) {
-        val window = (view.context as? Activity)?.window
-        window?.let {
-            // Keep status bar white/light background
-            it.statusBarColor = android.graphics.Color.WHITE
-            // Set icons to DARK so they're visible on white background
-            androidx.core.view.WindowCompat.getInsetsController(
-                it,
-                view
-            ).isAppearanceLightStatusBars = true
-        }
-        onDispose {}
-    }
 
     LaunchedEffect(movieId) {
         getMovieDetails(movieId) {

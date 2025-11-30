@@ -1,14 +1,13 @@
 package com.example.absolutecinema
 
 import android.Manifest
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -31,12 +30,15 @@ import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
 import com.example.absolutecinema.viewmodel.WatchedMoviesViewModel
 import com.example.absolutecinema.viewmodel.WatchlistMoviesViewModel
+import com.google.android.gms.ads.MobileAds
 
 
 class MainActivity : ComponentActivity() {
-    var isDialogShown= mutableStateOf(false)
+    var isDialogShown = mutableStateOf(false)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MobileAds.initialize(this) {}
+//        loadInterstitialAd(this)
         val requestHandler = handlePermissionRequest()
         createNotificationChannel(this)
         setContent {
@@ -53,7 +55,7 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
                 val dontShowBottomBar = when (currentRoute) {
-                    "signup", "login","onboard","splash" -> true
+                    "signup", "login", "onboard", "splash" -> true
                     else -> false
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
@@ -64,8 +66,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        if(!dontShowBottomBar){
-
+                        AnimatedVisibility(visible = !dontShowBottomBar) {
                             BottomNavigationBar(
                                 navController = navController,
                                 isUserLoggedIn = isUserLoggedIn,
@@ -94,6 +95,7 @@ class MainActivity : ComponentActivity() {
         }
 
     }
+
     fun handlePermissionRequest(): ActivityResultLauncher<String> {
         val handler = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -101,7 +103,7 @@ class MainActivity : ComponentActivity() {
             if (isGranted) {
                 scheduleDailyNotification(this)
             } else {
-                isDialogShown.value=true
+                isDialogShown.value = true
             }
         }
         return handler

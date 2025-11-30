@@ -28,15 +28,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
+import com.google.firebase.annotations.concurrent.Background
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -67,24 +70,40 @@ fun ProfileScreen(
         viewModel.fetchUserProfile()
     }
 
-    // ✅ Material3 DatePicker Dialog
+    // ✅ Material3 DatePicker Dialog (updated: disallow future dates)
     if (showDatePicker) {
+        // compute end-of-day millis for "today" so any selection after now is considered future
+        val todayEndMillis = remember {
+            Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 23)
+                set(Calendar.MINUTE, 59)
+                set(Calendar.SECOND, 59)
+                set(Calendar.MILLISECOND, 999)
+            }.timeInMillis
+        }
+
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
+                val selected = datePickerState.selectedDateMillis
+                val enabled = selected != null && selected <= todayEndMillis
+
                 TextButton(
                     onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            val calendar = Calendar.getInstance()
-                            calendar.timeInMillis = millis
-                            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                            val formattedDate = dateFormat.format(calendar.time)
-                            val prefs= context.getSharedPreferences("user_birthday", Context.MODE_PRIVATE)
-                            prefs.edit().putString("birthday",formattedDate).apply()
-                            viewModel.updateBirthday(formattedDate, context)
+                        if (enabled) {
+                            datePickerState.selectedDateMillis?.let { millis ->
+                                val calendar = Calendar.getInstance()
+                                calendar.timeInMillis = millis
+                                val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                val formattedDate = dateFormat.format(calendar.time)
+                                val prefs = context.getSharedPreferences("user_birthday", Context.MODE_PRIVATE)
+                                prefs.edit().putString("birthday", formattedDate).apply()
+                                viewModel.updateBirthday(formattedDate, context)
+                                showDatePicker = false
+                            }
                         }
-                        showDatePicker = false
-                    }
+                    },
+                    enabled = enabled
                 ) {
                     Text("OK")
                 }
@@ -95,7 +114,18 @@ fun ProfileScreen(
                 }
             }
         ) {
-            DatePicker(state = datePickerState)
+            // DatePicker plus inline validation message when a future date is chosen
+            Column {
+                DatePicker(state = datePickerState)
+                val selected = datePickerState.selectedDateMillis
+                if (selected != null && selected > todayEndMillis) {
+                    Text(
+                        text = "Please select today or a past date",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                    )
+                }
+            }
         }
     }
 
@@ -213,25 +243,7 @@ fun ProfileScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // User Name
-            Text(
-                text = "${userProfile?.firstName ?: ""} ${userProfile?.secondName ?: ""}".trim(),
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = userProfile?.email ?: "",
-                fontSize = 14.sp,
-                color = Color.White
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Info Cards
             ProfileInfoCard(
@@ -270,19 +282,22 @@ fun ProfileScreen(
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red
+                    containerColor = Color.Red,
+                    contentColor = Color.White // children will use this color
                 )
             ) {
                 Icon(
                     imageVector = Icons.Default.ExitToApp,
                     contentDescription = "Sign Out",
                     modifier = Modifier.size(24.dp)
+                    // no explicit tint needed — Icon will use LocalContentColor (white)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = "Sign Out",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
+                    // no explicit color needed because contentColor is set on the Button
                 )
             }
 
@@ -305,30 +320,35 @@ fun ProfileScreen(
 
 @Composable
 fun ProfileInfoCard(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     title: String,
     value: String,
     color: Color,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    cardElevation: Dp = 6.dp
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable(enabled = onClick != null) { onClick?.invoke() },
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = cardElevation),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color(0xFF0E1216),
+            contentColor = Color(0xFFFFFFFF)
         )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Surface(
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape),
                 shape = CircleShape,
                 color = color.copy(alpha = 0.1f)
             ) {
@@ -346,14 +366,14 @@ fun ProfileInfoCard(
                 Text(
                     text = title,
                     fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    color = Color(0xFFFFFFFF).copy(alpha = 0.65f)
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = value,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = Color(0xFFFFFFFF)
                 )
             }
         }

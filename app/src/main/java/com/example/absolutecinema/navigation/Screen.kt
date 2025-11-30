@@ -31,7 +31,7 @@ sealed class Screen(val route: String) {
     object Profile : Screen("profile")
     object Explore : Screen("explore")
     object Splash : Screen("splash")
-//    object OnBoard : Screen("onboard")
+    object OnBoard : Screen("onboard")
 }
 data class Deliverables(
     val movieId: String,

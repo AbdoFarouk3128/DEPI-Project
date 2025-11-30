@@ -23,7 +23,7 @@ import com.example.absolutecinema.ui.theme.Animation
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.ui.theme.red
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
-
+import androidx.compose.ui.platform.testTag
 @Composable
 fun Login(
     goToApp: () -> Unit,
@@ -89,7 +89,8 @@ fun Login(
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .then(animModifier),
+                        .then(animModifier)
+                        .testTag("login_email"),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                 )
             }
@@ -118,7 +119,8 @@ fun Login(
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .then(animModifier),
+                        .then(animModifier)
+                        .testTag("login_password"),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                 )
             }
@@ -151,6 +153,7 @@ fun Login(
                         .fillMaxWidth()
                         .height(50.dp)
                         .then(animModifier)
+                        .testTag("login_button")
                 ) {
                     Text("LOGIN", color = Color.White, fontWeight = FontWeight.Bold)
                 }
