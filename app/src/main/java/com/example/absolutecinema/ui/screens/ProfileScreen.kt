@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
+import com.example.absolutecinema.ui.theme.TVCloseAnimation
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -37,9 +38,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.absolutecinema.ui.theme.TVCloseAnimation
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
 import com.google.firebase.annotations.concurrent.Background
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -52,6 +56,9 @@ fun ProfileScreen(
     val context = LocalContext.current
     val userProfile by viewModel.userProfile.observeAsState()
     val isLoading by viewModel.isLoading
+
+    var startAnimation by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
@@ -276,7 +283,13 @@ fun ProfileScreen(
 
             // Sign Out Button
             Button(
-                onClick = { viewModel.signOut(context, onSignOut) },
+                onClick = {
+                    startAnimation = true
+                    scope.launch {
+                        delay(800)
+                        viewModel.signOut(context, onSignOut)
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -315,6 +328,7 @@ fun ProfileScreen(
                 CircularProgressIndicator(color = Color.White)
             }
         }
+        TVCloseAnimation(startAnimation = startAnimation)
     }
 }
 
