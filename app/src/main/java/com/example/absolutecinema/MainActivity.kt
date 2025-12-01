@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
                 val dontShowBottomBar = when (currentRoute) {
-                    "signup", "login", "onboard", "splash" -> true
+                    null,"signup", "login", "onboard", "splash","internet" -> true
                     else -> false
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)

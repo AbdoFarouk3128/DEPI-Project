@@ -3,19 +3,26 @@ package com.example.absolutecinema.navigation
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.core.content.edit
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import com.example.absolutecinema.data.helpers.isInternetAvailable
 import com.example.absolutecinema.data.helpers.shareMovie
-import com.example.absolutecinema.data.onboarding.isOnBoardingComplete
 import com.example.absolutecinema.ui.screens.ExploreScreen
 import com.example.absolutecinema.ui.screens.HomeScreen
 import com.example.absolutecinema.ui.screens.ListsScreen
 import com.example.absolutecinema.ui.screens.Login
 import com.example.absolutecinema.ui.screens.MovieDetails
+import com.example.absolutecinema.ui.screens.NoInternet
 import com.example.absolutecinema.ui.screens.OnBoardScreen
 import com.example.absolutecinema.ui.screens.ProfileScreen
 import com.example.absolutecinema.ui.screens.SignUP
@@ -33,7 +40,6 @@ import com.google.firebase.auth.auth
 import com.google.gson.Gson
 import java.net.URLDecoder
 import java.net.URLEncoder
-import androidx.core.content.edit
 
 private lateinit var auth: FirebaseAuth
 
@@ -52,16 +58,24 @@ fun NavGraph(
 
     val onboardingDone = sharedPref.getBoolean("onboarding_done", false)
 
-    val startDestination = if (!onboardingDone) {
-        Screen.OnBoard.route
+    var startDestination by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(Unit) {
+        val internet = isInternetAvailable(context)
 
-    } else if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) {
-        Screen.Explore.route
+        startDestination =
+            if (!internet) {
+                Screen.Internet.route
+            } else if (!onboardingDone) {
+                Screen.OnBoard.route
+            } else if (auth.currentUser?.isEmailVerified == true) {
+                Screen.Explore.route
+            } else {
+                Screen.Login.route
+            }
     }
-    else{
-        Screen.Login.route
-    }
-    NavHost(
+
+    startDestination?.let { destination ->
+        NavHost(
         navController = navController,
         startDestination = Screen.Splash.route,
     ) {
@@ -69,6 +83,17 @@ fun NavGraph(
             HomeScreen(
                 onMovieClick = { deliverable ->
                     navController.navigate(Screen.Details.createRoute(deliverable))
+                }
+            )
+        }
+        composable(Screen.Internet.route) {
+            NoInternet(
+                {
+                    if (isInternetAvailable(context)) {
+                        navController.navigate(Screen.Explore.route) {
+                            popUpTo(Screen.Internet.route) { inclusive = true }
+                        }
+                    }
                 }
             )
         }
@@ -90,14 +115,14 @@ fun NavGraph(
 
         composable(Screen.OnBoard.route)
         {
-            OnBoardScreen{
+            OnBoardScreen {
                 sharedPref.edit { putBoolean("onboarding_done", true) }
                 navController.navigate(if (auth.currentUser != null && auth.currentUser!!.isEmailVerified) Screen.Explore.route else Screen.Login.route)
             }
         }
         composable(Screen.Splash.route) {
             SplashScreen {
-                navController.navigate(startDestination) {
+                navController.navigate(destination) {
                     popUpTo(0)
                 }
             }
@@ -233,7 +258,7 @@ fun NavGraph(
                 }
             )
         }
-    }
+    }}
 }
 
 
