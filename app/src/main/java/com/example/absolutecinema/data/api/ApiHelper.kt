@@ -160,7 +160,10 @@ fun searchForMovie(query: String, onResult: (List<Results>) -> Unit) {
     c.searchForMovieByTitle(query).enqueue(object : Callback<Cinema> {
         override fun onResponse(call: Call<Cinema>, response: Response<Cinema>) {
             val results = response.body()?.results ?: emptyList()
-            onResult(results)
+            val filtered= results.filter {
+                it.poster !=null
+            }
+            onResult(filtered)
         }
 
         override fun onFailure(call: Call<Cinema>, t: Throwable) {

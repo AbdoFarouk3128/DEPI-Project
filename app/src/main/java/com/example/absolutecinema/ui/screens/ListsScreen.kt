@@ -50,6 +50,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.data.api.getDetails
 import com.example.absolutecinema.navigation.Deliverables
+import com.example.absolutecinema.ui.theme.SlideInFromLeft
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
@@ -126,51 +127,56 @@ fun ListsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Watchlist Section
-            MovieListSection(
-                title = "Watchlist",
-                movieIds = watchlist.map { it.movieId },
-                totalCount = watchlist.size,
-                color = Color(0xFFA970FF),
-                onMovieClick = onMovieClick,
-                onSeeAllClick = { onSeeAllClick("watchlist") }
-            )
+            SlideInFromLeft {
+                MovieListSection(
+                    title = "Watchlist",
+                    movieIds = watchlist.map { it.movieId },
+                    totalCount = watchlist.size,
+                    color = Color(0xFFA970FF),
+                    onMovieClick = onMovieClick,
+                    onSeeAllClick = { onSeeAllClick("watchlist") }
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Liked Section
-            MovieListSection(
-                title = "Liked",
-                movieIds = likedList.map { it.movieId },
-                totalCount = likedList.size,
-                color = Color(0xFFE91E63),
-                onMovieClick = onMovieClick,
-                onSeeAllClick = { onSeeAllClick("liked") }
-            )
+            SlideInFromLeft {
+                // Liked Section
+                MovieListSection(
+                    title = "Liked",
+                    movieIds = likedList.map { it.movieId },
+                    totalCount = likedList.size,
+                    color = Color(0xFFE91E63),
+                    onMovieClick = onMovieClick,
+                    onSeeAllClick = { onSeeAllClick("liked") }
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            // Watched Section
-            MovieListSection(
-                title = "Watched",
-                movieIds = watchedList.map { it.movieId },
-                totalCount = watchedList.size,
-                color = Color(0xFF00BCD4),
-                onMovieClick = onMovieClick,
-                onSeeAllClick = { onSeeAllClick("watched") }
-            )
-
+            SlideInFromLeft {
+                // Watched Section
+                MovieListSection(
+                    title = "Watched",
+                    movieIds = watchedList.map { it.movieId },
+                    totalCount = watchedList.size,
+                    color = Color(0xFF00BCD4),
+                    onMovieClick = onMovieClick,
+                    onSeeAllClick = { onSeeAllClick("watched") }
+                )
+            }
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Rated Section
-            MovieListSection(
-                title = "Rated",
-                movieIds = ratedList.map { it.movieId },
-                totalCount = ratedList.size,
-                color = Color(0xFFFF9800),
-                onMovieClick = onMovieClick,
-                onSeeAllClick = { onSeeAllClick("rated") }
-            )
-
+            SlideInFromLeft {
+                // Rated Section
+                MovieListSection(
+                    title = "Rated",
+                    movieIds = ratedList.map { it.movieId },
+                    totalCount = ratedList.size,
+                    color = Color(0xFFFF9800),
+                    onMovieClick = onMovieClick,
+                    onSeeAllClick = { onSeeAllClick("rated") }
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
