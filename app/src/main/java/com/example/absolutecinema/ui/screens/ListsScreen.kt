@@ -132,7 +132,7 @@ fun ListsScreen(
                 totalCount = watchlist.size,
                 color = Color(0xFFA970FF),
                 onMovieClick = onMovieClick,
-                onSeeAllClick = { onSeeAllClick("Watchlist") }
+                onSeeAllClick = { onSeeAllClick("watchlist") }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -144,7 +144,7 @@ fun ListsScreen(
                 totalCount = likedList.size,
                 color = Color(0xFFE91E63),
                 onMovieClick = onMovieClick,
-                onSeeAllClick = { onSeeAllClick("Liked") }
+                onSeeAllClick = { onSeeAllClick("liked") }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -156,7 +156,7 @@ fun ListsScreen(
                 totalCount = watchedList.size,
                 color = Color(0xFF00BCD4),
                 onMovieClick = onMovieClick,
-                onSeeAllClick = { onSeeAllClick("Watched") }
+                onSeeAllClick = { onSeeAllClick("watched") }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -168,7 +168,7 @@ fun ListsScreen(
                 totalCount = ratedList.size,
                 color = Color(0xFFFF9800),
                 onMovieClick = onMovieClick,
-                onSeeAllClick = { onSeeAllClick("Rated") }
+                onSeeAllClick = { onSeeAllClick("rated") }
             )
 
             Spacer(modifier = Modifier.height(16.dp))

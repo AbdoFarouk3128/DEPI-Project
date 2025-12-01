@@ -1,18 +1,28 @@
 package com.example.absolutecinema.ui.screens
 
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -29,10 +39,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.absolutecinema.data.api.Results
 import com.example.absolutecinema.data.api.getMoviesOnDate
 import com.example.absolutecinema.data.api.getNowPlayingMovies
@@ -45,13 +64,15 @@ import com.example.absolutecinema.ui.componants.BannerAd
 import com.example.absolutecinema.ui.theme.SlideInFromLeft
 import com.example.absolutecinema.ui.theme.darkBlue
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
+import kotlinx.coroutines.delay
+import kotlin.math.absoluteValue
 
 @Composable
 fun ExploreScreen(
     onMovieClick: (Deliverables) -> Unit,
     goToMovies: (Int) -> Unit,
     firebaseViewModel: FirebaseViewModel,
-    time:(String)->Unit,
+    time: (String) -> Unit,
 ) {
 
     var topRatedMovies by remember { mutableStateOf<List<Results>>(emptyList()) }
@@ -79,7 +100,7 @@ fun ExploreScreen(
     val isLoading = popularMovies.isEmpty() ||
             nowPlayingMovies.isEmpty() ||
             upcomingMovies.isEmpty() ||
-            topRatedMovies.isEmpty()||
+            topRatedMovies.isEmpty() ||
             seasonMovies.isEmpty()
 
     if (isLoading) {
@@ -121,14 +142,38 @@ fun ExploreScreen(
 
             }
             BannerAd()
-            SlideInFromLeft{
-                TopicList(
-                    "Today’s Must-Watch",
-                    movies = seasonMovies,
-                    onMovieClick = onMovieClick,
-                    index = 5,
-                    goToMovies = goToMovies
-                )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            ) {
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                ){
+                    Text(
+                        "Today's Must Watch",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
+                    )
+                    TextButton(
+                        onClick = { goToMovies(5) },
+                    ) {
+                        Text("See All", color = Color(0xFF00BCD4), fontWeight = FontWeight.SemiBold)
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "See All",
+                            modifier = Modifier.size(18.dp),
+                            Color(0xFF00BCD4)
+                        )
+                    }
+                }
+                EndlessHorizontalPager(seasonMovies, onMovieClick)
             }
 
             SlideInFromLeft {
@@ -140,7 +185,7 @@ fun ExploreScreen(
                     goToMovies = goToMovies
                 )
             }
-            SlideInFromLeft{
+            SlideInFromLeft {
                 TopicList(
                     "Now playing",
                     movies = nowPlayingMovies,
@@ -149,7 +194,7 @@ fun ExploreScreen(
                     goToMovies = goToMovies
                 )
             }
-            SlideInFromLeft{
+            SlideInFromLeft {
                 TopicList(
                     "Upcoming",
                     movies = upcomingMovies,
@@ -159,7 +204,7 @@ fun ExploreScreen(
                 )
             }
 
-            SlideInFromLeft{
+            SlideInFromLeft {
                 TopicList(
                     "Top Rated",
                     movies = topRatedMovies,
@@ -191,13 +236,6 @@ fun TopicList(
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp)
         ) {
-//            Image(
-//                painterResource(image),
-//                contentDescription = topicName,
-//                modifier = Modifier.padding(8.dp)
-//                    .size(20.dp)
-//
-//            )
             Text(
                 topicName,
                 modifier = Modifier
@@ -208,8 +246,9 @@ fun TopicList(
                 color = Color.White
             )
             if (movies.size > 5) {
-                TextButton(onClick = { goToMovies(index) },
-                   ) {
+                TextButton(
+                    onClick = { goToMovies(index) },
+                ) {
                     Text("See All", color = Color(0xFF00BCD4), fontWeight = FontWeight.SemiBold)
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -226,6 +265,182 @@ fun TopicList(
         ) {
             items(movies) { movie ->
                 MovieCard(movie, onMovieClick)
+            }
+        }
+    }
+}
+
+
+fun Modifier.fadingEdges(): Modifier =
+    this.drawWithContent {
+        drawContent()
+
+        val fadeWidth = 60f
+
+        // Left fade
+        drawRect(
+            brush = Brush.horizontalGradient(
+                colors = listOf(Color.Black, Color.Transparent),
+                startX = 0f,
+                endX = fadeWidth
+            ),
+            size = size
+        )
+
+        // Right fade
+        drawRect(
+            brush = Brush.horizontalGradient(
+                colors = listOf(Color.Transparent, Color.Black),
+                startX = size.width - fadeWidth,
+                endX = size.width
+            ),
+            size = size
+        )
+    }
+
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class)
+@Composable
+fun EndlessHorizontalPager(
+    movies: List<Results>,
+    onMovieClick: (Deliverables) -> Unit,
+) {
+    val infiniteCount = Int.MAX_VALUE
+    val startIndex = (infiniteCount / 2) - 3
+    val pagerState = rememberPagerState(initialPage = startIndex) { infiniteCount }
+
+    // auto-scroll (increment page by 1 each tick)
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(2500)
+            pagerState.animateScrollToPage(pagerState.currentPage + 1, animationSpec = tween(600))
+        }
+    }
+
+    // The width of each page item (image container)
+    val pageWidth = 180.dp      // tweak this if you want wider/narrower posters
+    val imageWidth = 140.dp
+    val imageHeight = 220.dp
+
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(280.dp)
+            .background(
+                brush = Brush.verticalGradient(
+                    listOf(
+                        Color.Transparent,
+                        Color.Black.copy(alpha = 0.6f)
+                    )
+                )
+            )
+    ) {
+        // maxWidth is the full pager container width
+        val horizontalPadding = (maxWidth - pageWidth) / 2
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(280.dp)
+                .fadingEdges(), // your custom fading effect
+            pageSpacing = 24.dp,
+            // center pages by setting symmetric padding equal to (container - pageWidth)/2
+            contentPadding = PaddingValues(horizontal = horizontalPadding),
+        ) { page ->
+
+            val movie = movies[page % movies.size]
+
+            val pageOffset = ((pagerState.currentPage - page) +
+                    pagerState.currentPageOffsetFraction).absoluteValue
+            val scale = lerp(start = 0.85f, stop = 1.25f, fraction = 1f - pageOffset)
+
+            // Make the page exactly `pageWidth` wide so it's centered by the contentPadding above
+            Box(
+                modifier = Modifier
+                    .width(pageWidth)
+                    .fillMaxHeight(),     // centers vertically inside pager height
+                contentAlignment = Alignment.Center
+            ) {
+                GlideImage(
+                    model = "https://image.tmdb.org/t/p/w500/${movie.poster}",
+                    contentDescription = movie.title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            alpha = lerp(0.6f, 1f, fraction = 1f - pageOffset.coerceIn(0f, 1f))
+                        }
+                        .shadow(
+                            elevation = if (pageOffset < 0.1f) 20.dp else 0.dp,       // soft glow for center
+                            shape = RoundedCornerShape(16.dp),
+                            clip = false
+                        )
+                        .width(imageWidth)
+                        .height(imageHeight)
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable {
+                            onMovieClick(
+                                Deliverables(
+                                    movieId = movie.id,
+                                    poster = movie.poster,
+                                    title = movie.title
+                                )
+                            )
+                        }
+                )
+            }
+        }
+    }
+}
+@Composable
+fun SectionHeader(
+    title: String,
+    onSeeAllClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+
+        Column {
+            Text(
+                text = title,
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = "Recommended for you",
+                color = Color(0xFFB0BEC5),
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+
+        TextButton(
+            onClick = onSeeAllClick,
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "See All",
+                    color = Color(0xFF00E5FF),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "See All",
+                    tint = Color(0xFF00E5FF),
+                    modifier = Modifier
+                        .padding(start = 4.dp)
+                        .size(18.dp)
+                )
             }
         }
     }
