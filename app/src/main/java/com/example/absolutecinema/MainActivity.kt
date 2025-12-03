@@ -8,6 +8,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -25,6 +32,7 @@ import com.example.absolutecinema.data.helpers.scheduleDailyNotification
 import com.example.absolutecinema.navigation.NavGraph
 import com.example.absolutecinema.ui.componants.BottomNavigationBar
 import com.example.absolutecinema.ui.theme.AbsoluteCinemaTheme
+import com.example.absolutecinema.ui.theme.SlideInFromRight
 import com.example.absolutecinema.viewmodel.FirebaseViewModel
 import com.example.absolutecinema.viewmodel.LikedMoviesViewModel
 import com.example.absolutecinema.viewmodel.RatedMovieViewModel
@@ -66,7 +74,17 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        AnimatedVisibility(visible = !dontShowBottomBar) {
+
+                        AnimatedVisibility(visible = !dontShowBottomBar,
+                            enter = slideInHorizontally(
+                                initialOffsetX = { -it },
+                                animationSpec = tween(800)
+                            ),
+                            exit = slideOutHorizontally(
+                                targetOffsetX = { -it },
+                                animationSpec = tween(800)
+                            )
+                        ) {
                             BottomNavigationBar(
                                 navController = navController,
                                 isUserLoggedIn = isUserLoggedIn,
@@ -77,6 +95,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+
                     }
                 ) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
