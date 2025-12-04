@@ -89,7 +89,7 @@ fun NavGraph(
         composable(Screen.Internet.route) {
             NoInternet {
                 if (isInternetAvailable(context)) {
-                    navController.navigate(Screen.Explore.route) {
+                    navController.navigate(destination) {
                         popUpTo(Screen.Internet.route) { inclusive = true }
                     }
                 }
