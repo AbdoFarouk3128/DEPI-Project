@@ -22,12 +22,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -147,24 +149,34 @@ fun ExploreScreen(
                     .fillMaxWidth()
                     .padding(vertical = 16.dp)
             ) {
-                Row (
+                Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                ){
+                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                ) {
                     Text(
                         "Today's Must Watch",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 0.3.sp
+                        ),
+//                        modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
                     )
-                    TextButton(
-                        onClick = { goToMovies(5) },
+                    Row(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable { goToMovies(5) }
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("See All", color = Color(0xFF00BCD4), fontWeight = FontWeight.SemiBold)
+                        Text(
+                            "See All",
+                            color = Color(0xFF00BCD4),
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 14.sp
+                        )
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = "See All",
@@ -393,6 +405,7 @@ fun EndlessHorizontalPager(
         }
     }
 }
+
 @Composable
 fun SectionHeader(
     title: String,

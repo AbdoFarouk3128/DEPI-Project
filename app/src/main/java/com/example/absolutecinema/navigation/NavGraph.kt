@@ -87,15 +87,13 @@ fun NavGraph(
             )
         }
         composable(Screen.Internet.route) {
-            NoInternet(
-                {
-                    if (isInternetAvailable(context)) {
-                        navController.navigate(Screen.Explore.route) {
-                            popUpTo(Screen.Internet.route) { inclusive = true }
-                        }
+            NoInternet {
+                if (isInternetAvailable(context)) {
+                    navController.navigate(destination) {
+                        popUpTo(Screen.Internet.route) { inclusive = true }
                     }
                 }
-            )
+            }
         }
         //lists screen
         composable(route = Screen.Lists.route) { backStackEntry ->

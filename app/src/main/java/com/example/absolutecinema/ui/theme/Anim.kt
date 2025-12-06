@@ -74,6 +74,37 @@ fun SlideInFromLeft(
 }
 
 @Composable
+fun SlideInFromRight(
+    duration: Int = 900,
+    content: @Composable () -> Unit
+) {
+    var visible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        visible = true
+    }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideInHorizontally(
+            initialOffsetX = { -it },
+            animationSpec = tween(
+                durationMillis = duration,
+                easing = FastOutSlowInEasing
+            )
+        ) + fadeIn(
+            animationSpec = tween(
+                durationMillis = duration,
+                easing = FastOutSlowInEasing
+            )
+        )
+    ) {
+        content()
+    }
+}
+
+
+@Composable
 fun TVCloseAnimation(
     startAnimation: Boolean,
     duration: Int = 800,
