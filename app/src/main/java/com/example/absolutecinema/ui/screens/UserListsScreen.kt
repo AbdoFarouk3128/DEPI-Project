@@ -268,7 +268,7 @@ if(refresh)
                                                 popup = false
                                                 refresh = !refresh
                                             },
-                                            text = if (isWatched) "Remove from Watchlist" else "Add to Watchlist",
+                                            text = "Watchlist",
                                             icon = if (isWatched) R.drawable.watchlist_added else R.drawable.watchlist_not
                                         )
                                         DividerLine()
@@ -284,7 +284,7 @@ if(refresh)
                                                 popup = false
                                                 refresh = !refresh
                                             },
-                                            text = if (isLiked) "remove from Liked" else "add to Liked",
+                                            text = "Liked Movies",
                                             icon = if (isLiked) R.drawable.heart else R.drawable.heart_empty
                                         )
                                         DividerLine()
@@ -300,14 +300,14 @@ if(refresh)
                                                 popup = false
                                                 refresh = !refresh
                                             },
-                                            text = if (isWatch) "Remove from Watched" else "Add to Watched",
+                                            text = "Watched List",
                                             icon = if (isWatch) R.drawable.watched else R.drawable.not_watched
                                         )
                                         DividerLine()
 
                                         RatingBar(
                                             modifier = Modifier
-                                                .size(45.dp)
+                                                .size(35.dp)
                                                 .padding(top = 16.dp),
                                             rating = currentUserRating,
                                             onRatingChanged = { newRating ->
@@ -477,7 +477,7 @@ if(refresh)
                                                 popup = false
                                                 refresh = !refresh
                                             },
-                                            text = if (isWatched) "Remove from Watchlist" else "Add to Watchlist",
+                                            text ="Watchlist",
                                             icon = if (isWatched) R.drawable.watchlist_added else R.drawable.watchlist_not
                                         )
                                         DividerLine()
@@ -493,7 +493,7 @@ if(refresh)
                                                 popup = false
                                                 refresh = !refresh
                                             },
-                                            text = if (isLiked) "remove from Liked" else "add to Liked",
+                                            text =  "Liked Movies",
                                             icon = if (isLiked) R.drawable.heart else R.drawable.heart_empty
                                         )
                                         DividerLine()
@@ -509,14 +509,14 @@ if(refresh)
                                                 popup = false
                                                 refresh = !refresh
                                             },
-                                            text = if (isWatch) "Remove from Watched" else "Add to Watched",
+                                            text = "Watched Movies",
                                             icon = if (isWatch) R.drawable.watched else R.drawable.not_watched
                                         )
                                         DividerLine()
 
                                         RatingBar(
                                             modifier = Modifier
-                                                .size(45.dp)
+                                                .size(35.dp)
                                                 .padding(top = 16.dp),
                                             rating = currentUserRating,
                                             onRatingChanged = { newRating ->
